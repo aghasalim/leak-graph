@@ -1,0 +1,17 @@
+[project]
+name = "leakgraph"
+version = "0.1.0"
+# 3.12 is what the pinned requirements resolve against and what CI exercises. Claiming a
+# wider range would be claiming something nothing tests.
+requires-python = ">=3.12"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

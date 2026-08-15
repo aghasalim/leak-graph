@@ -1,0 +1,32 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        # CPU-only torch keeps the image small. Only what the tests import is installed here;
+        # pandas is an experiments-only dependency and is deliberately left out.
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install torch-geometric scikit-learn pytest
+      - name: Run tests
+        # The suite builds a synthetic graph in-process and never touches the network or the
+        # data/ directory, so CI never downloads a benchmark.
+        run: python -m pytest tests -q
+      - name: Assert the tests really did not download anything
+        run: |
+          if [ -d data ] && [ -n "$(ls -A data 2>/dev/null)" ]; then
+            echo "tests populated data/ -- a test is downloading a real dataset"; exit 1
+          fi
