@@ -74,6 +74,7 @@ def train_one(
     seed: int,
     dedup_test_mask: Tensor | None = None,
     covered_test_mask: Tensor | None = None,
+    pool_mask: Tensor | None = None,
     epochs: int = 300,
     patience: int = 100,
     hidden: int = 64,
@@ -105,7 +106,9 @@ def train_one(
             0,
         )
 
-    view = make_training_view(data.x, data.y, data.edge_index, split, regime, seed=seed)
+    view = make_training_view(
+        data.x, data.y, data.edge_index, split, regime, seed=seed, pool_mask=pool_mask
+    )
     net = models.build(model_name, data.x.size(1), data.num_classes, hidden=hidden)
     opt = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
 

@@ -1,7 +1,8 @@
 PY ?= .venv/bin/python
 PIP ?= .venv/bin/pip
 
-.PHONY: venv install test audit audit-quick detectors control tables clean
+.PHONY: venv install test audit audit-quick detectors control control-bisected \
+	control-random-splits duplicate-definitions tables clean
 
 venv:
 	/Users/salim/.local/bin/python3.12 -m venv .venv || python3.12 -m venv .venv
@@ -32,6 +33,20 @@ detectors:
 # Only constructible on the Planetoid splits; see the README.
 control:
 	$(PY) experiments/run_density_control.py
+
+# The same control on every dataset, by reserving half the test set as the removal pool, and
+# again under a second split scheme. Together these are what make chameleon and squirrel
+# measurable at all.
+control-bisected:
+	$(PY) experiments/run_density_control.py --bisect
+
+control-random-splits:
+	$(PY) experiments/run_density_control.py --random-splits
+
+# No training: sweeps eighteen readings of "duplicate" against the rates quoted in the
+# literature. Minutes.
+duplicate-definitions:
+	$(PY) experiments/run_duplicate_definitions.py
 
 # Regenerates every table in the README from the committed artifacts.
 tables:

@@ -135,24 +135,80 @@ def feature_table(det: list[dict]) -> str:
 
 def density_table(path: Path) -> str:
     """Splits the headline gap into "the graph got smaller" and "the test nodes specifically
-    went away". Datasets where the control cannot be built are listed as such, not omitted."""
+    went away". Datasets where the control cannot be built are listed as such, not omitted.
+
+    Each component carries its own two-standard-error resolution mark, the same test the
+    headline table uses. Without it a decomposed component is only a direction.
+    """
     if not path.exists():
         return "_not run_"
     dc = pd.read_csv(path)
     lines = [
-        "| dataset | model | total inflation | density cost | test-node-specific |",
-        "|---|---|---|---|---|",
+        "| dataset | model | total inflation | density cost | resolved? | test-node-specific "
+        "| resolved? |",
+        "|---|---|---|---|---|---|---|",
     ]
-    for _, r in dc.iterrows():
+
+    def mark(row, key):
+        if key not in row or pd.isna(row[key]):
+            return "n/a"
+        return "yes" if bool(row[key]) else "**no**"
+
+    for _, r in sort_key(dc).iterrows():
         if r["status"] != "measured":
-            lines.append(f"| {r['dataset']} | - | _{r['status']}_ | | |")
+            lines.append(f"| {r['dataset']} | - | _{r['status']}_ | | | | |")
             continue
         lines.append(
             f"| {r['dataset']} | {r['model']} | "
             f"{pp(r['total_inflation_mean'])} ± {pp(r['total_inflation_std'])} | "
             f"{pp(r['density_cost_mean'])} ± {pp(r['density_cost_std'])} | "
-            f"{pp(r['test_specific_mean'])} ± {pp(r['test_specific_std'])} |"
+            f"{mark(r, 'density_resolved')} | "
+            f"{pp(r['test_specific_mean'])} ± {pp(r['test_specific_std'])} | "
+            f"{mark(r, 'test_specific_resolved')} |"
         )
+    return "\n".join(lines)
+
+
+def duplicate_definition_table(path: Path) -> str:
+    """Which reading of "duplicate" reproduces the quoted 1% (Cora) / 5% (CiteSeer) pair.
+
+    The CiteSeer/Cora ratio is the sharpest column: the quote implies 5x, and it does not
+    depend on either absolute level.
+    """
+    if not path.exists():
+        return "_not run_"
+    payload = json.loads(path.read_text())
+    rates, verdicts = payload["rates"], payload["verdicts"]
+    lines = [
+        "| definition | Cora | CiteSeer | CiteSeer / Cora | PubMed | chameleon | squirrel |",
+        "|---|---|---|---|---|---|---|",
+        "| _quoted by OGB from Zou et al._ | _1.0_ | _5.0_ | _5.0_ | _-_ | _-_ | _-_ |",
+    ]
+    for key in sorted(verdicts, key=lambda k: -abs(verdicts[k]["citeseer_over_cora"] - 5.0)):
+        ratio = verdicts[key]["citeseer_over_cora"]
+        cells = " | ".join(
+            f"{100 * rates[d][key]:.2f}" if d in rates else "-"
+            for d in ("PubMed", "chameleon", "squirrel")
+        )
+        lines.append(
+            f"| `{key}` | {100 * rates['Cora'][key]:.2f} | {100 * rates['CiteSeer'][key]:.2f} | "
+            f"{'∞' if ratio == float('inf') else f'{ratio:.2f}'} | {cells} |"
+        )
+    solves = payload.get("solves", {})
+    if solves:
+        lines.append("")
+        lines.append(
+            "| similarity | cutoff that puts CiteSeer at 5% | CiteSeer there | Cora there "
+            "| Cora quoted |"
+        )
+        lines.append("|---|---|---|---|---|")
+        for kind, s in solves.items():
+            lines.append(
+                f"| {kind} | {s['threshold_giving_citeseer_5pct']:.4f} | "
+                f"{100 * s['citeseer_rate_there']:.2f} | "
+                f"{100 * s['cora_rate_at_the_same_threshold']:.2f} | "
+                f"{100 * s['cora_quoted']:.1f} |"
+            )
     return "\n".join(lines)
 
 
@@ -182,6 +238,9 @@ def main() -> None:
         "duplicates": detector_table(det),
         "features": feature_table(det),
         "density": density_table(REPORTS / "density_control.csv"),
+        "bisected": density_table(REPORTS / "bisected_control.csv"),
+        "randomsplit": density_table(REPORTS / "random_split_control.csv"),
+        "dupdefs": duplicate_definition_table(REPORTS / "duplicate_definitions.json"),
     }
 
     for title, key in [
@@ -189,6 +248,9 @@ def main() -> None:
         ("Duplicate component", "components"),
         ("Baselines", "baselines"),
         ("Density control", "density"),
+        ("Density control, bisected test set", "bisected"),
+        ("Density control, random splits", "randomsplit"),
+        ("Duplicate definitions", "dupdefs"),
         ("Duplicate detector", "duplicates"),
         ("Feature-label detector", "features"),
     ]:

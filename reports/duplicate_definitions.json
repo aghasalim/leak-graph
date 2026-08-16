@@ -1,0 +1,269 @@
+{
+  "quoted": {
+    "Cora": 0.01,
+    "CiteSeer": 0.05
+  },
+  "tolerance": 0.005,
+  "rates": {
+    "Cora": {
+      "exact_nodes_in_a_duplicate_group": 0.009970457902511078,
+      "exact_nodes_excluding_all_zero_rows": 0.009970457902511078,
+      "exact_redundant_copies": 0.005908419497784343,
+      "exact_duplicate_pairs_over_nodes": 0.00812407680945347,
+      "exact_duplicate_pairs_over_nodes_excluding_zero_rows": 0.00812407680945347,
+      "exact_and_same_label": 0.009970457902511078,
+      "exact_but_conflicting_label": 0.0,
+      "exact_on_binarised_features": 0.009970457902511078,
+      "cosine_0.99": 0.009970457902511078,
+      "cosine_0.95": 0.013663220088626292,
+      "cosine_0.9": 0.021787296898079764,
+      "cosine_0.8": 0.04098966026587888,
+      "cosine_0.7": 0.057976366322008865,
+      "jaccard_0.95": 0.011447562776957163,
+      "jaccard_0.8": 0.024741506646971934,
+      "jaccard_0.5": 0.07016248153618906,
+      "identical_neighbour_set": 0.0775480059084195,
+      "all_zero_feature_rows": 0.0
+    },
+    "CiteSeer": {
+      "exact_nodes_in_a_duplicate_group": 0.010519987977156597,
+      "exact_nodes_excluding_all_zero_rows": 0.006011421701232342,
+      "exact_redundant_copies": 0.007213706041478809,
+      "exact_duplicate_pairs_over_nodes": 0.03456567478208596,
+      "exact_duplicate_pairs_over_nodes_excluding_zero_rows": 0.003005710850616171,
+      "exact_and_same_label": 0.009317703636910129,
+      "exact_but_conflicting_label": 0.0012022843402464682,
+      "exact_on_binarised_features": 0.010519987977156597,
+      "cosine_0.99": 0.006011421701232342,
+      "cosine_0.95": 0.012623985572587917,
+      "cosine_0.9": 0.025849113315299068,
+      "cosine_0.8": 0.051698226630598136,
+      "cosine_0.7": 0.0793507664562669,
+      "jaccard_0.95": 0.009618274721971746,
+      "jaccard_0.8": 0.028854824165915238,
+      "jaccard_0.5": 0.0985873159002104,
+      "identical_neighbour_set": 0.17643522693116923,
+      "all_zero_feature_rows": 0.004508566275924256
+    },
+    "PubMed": {
+      "exact_nodes_in_a_duplicate_group": 0.00035502358370948926,
+      "exact_nodes_excluding_all_zero_rows": 0.00035502358370948926,
+      "exact_redundant_copies": 0.00020287061926256529,
+      "exact_duplicate_pairs_over_nodes": 0.00025358827407820665,
+      "exact_duplicate_pairs_over_nodes_excluding_zero_rows": 0.00025358827407820665,
+      "exact_and_same_label": 0.00020287061926256529,
+      "exact_but_conflicting_label": 0.00015215296444692398,
+      "exact_on_binarised_features": 0.00035502358370948926,
+      "cosine_0.99": 0.00035502358370948926,
+      "cosine_0.95": 0.0010143530963128266,
+      "cosine_0.9": 0.004716741897854643,
+      "cosine_0.8": 0.05244205507937313,
+      "cosine_0.7": 0.2372571892275701,
+      "jaccard_0.95": 0.00035502358370948926,
+      "jaccard_0.8": 0.0011665060607597504,
+      "jaccard_0.5": 0.020591367855150377,
+      "identical_neighbour_set": 0.4461124917583811,
+      "all_zero_feature_rows": 0.0
+    },
+    "chameleon": {
+      "exact_nodes_in_a_duplicate_group": 0.16469038208168643,
+      "exact_nodes_excluding_all_zero_rows": 0.06236275801493193,
+      "exact_redundant_copies": 0.14361001317523056,
+      "exact_duplicate_pairs_over_nodes": 11.97364953886693,
+      "exact_duplicate_pairs_over_nodes_excluding_zero_rows": 0.103645147123408,
+      "exact_and_same_label": 0.032498902064119456,
+      "exact_but_conflicting_label": 0.13219148001756698,
+      "exact_on_binarised_features": 0.16469038208168643,
+      "cosine_0.99": 0.06236275801493193,
+      "cosine_0.95": 0.06236275801493193,
+      "cosine_0.9": 0.06236275801493193,
+      "cosine_0.8": 0.06938954765041722,
+      "cosine_0.7": 0.13482652613087395,
+      "jaccard_0.95": 0.06236275801493193,
+      "jaccard_0.8": 0.06236275801493193,
+      "jaccard_0.5": 0.1427316644707949,
+      "identical_neighbour_set": 0.5709266578831796,
+      "all_zero_feature_rows": 0.1023276240667545
+    },
+    "squirrel": {
+      "exact_nodes_in_a_duplicate_group": 0.05095174004999039,
+      "exact_nodes_excluding_all_zero_rows": 0.019227071716977504,
+      "exact_redundant_copies": 0.04249182849452028,
+      "exact_duplicate_pairs_over_nodes": 2.6164199192462987,
+      "exact_duplicate_pairs_over_nodes_excluding_zero_rows": 0.014997115939242453,
+      "exact_and_same_label": 0.006729475100942127,
+      "exact_but_conflicting_label": 0.04422226494904826,
+      "exact_on_binarised_features": 0.05095174004999039,
+      "cosine_0.99": 0.019227071716977504,
+      "cosine_0.95": 0.019227071716977504,
+      "cosine_0.9": 0.019227071716977504,
+      "cosine_0.8": 0.020380696019996154,
+      "cosine_0.7": 0.06806383387810036,
+      "jaccard_0.95": 0.019227071716977504,
+      "jaccard_0.8": 0.019227071716977504,
+      "jaccard_0.5": 0.06960199961545857,
+      "identical_neighbour_set": 0.4962507210151894,
+      "all_zero_feature_rows": 0.03172466833301288
+    }
+  },
+  "verdicts": {
+    "exact_nodes_in_a_duplicate_group": {
+      "cora": 0.009970457902511078,
+      "citeseer": 0.010519987977156597,
+      "citeseer_over_cora": 1.0551158311903728,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "exact_nodes_excluding_all_zero_rows": {
+      "cora": 0.009970457902511078,
+      "citeseer": 0.006011421701232342,
+      "citeseer_over_cora": 0.6029233321087845,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "exact_redundant_copies": {
+      "cora": 0.005908419497784343,
+      "citeseer": 0.007213706041478809,
+      "citeseer_over_cora": 1.2209197475202884,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "exact_duplicate_pairs_over_nodes": {
+      "cora": 0.00812407680945347,
+      "citeseer": 0.03456567478208596,
+      "citeseer_over_cora": 4.254720332267673,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "exact_duplicate_pairs_over_nodes_excluding_zero_rows": {
+      "cora": 0.00812407680945347,
+      "citeseer": 0.003005710850616171,
+      "citeseer_over_cora": 0.36997568106675416,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "exact_and_same_label": {
+      "cora": 0.009970457902511078,
+      "citeseer": 0.009317703636910129,
+      "citeseer_over_cora": 0.9345311647686159,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "exact_but_conflicting_label": {
+      "cora": 0.0,
+      "citeseer": 0.0012022843402464682,
+      "citeseer_over_cora": Infinity,
+      "reproduces_both": false,
+      "reproduces_cora_only": false,
+      "reproduces_citeseer_only": false
+    },
+    "exact_on_binarised_features": {
+      "cora": 0.009970457902511078,
+      "citeseer": 0.010519987977156597,
+      "citeseer_over_cora": 1.0551158311903728,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "cosine_0.99": {
+      "cora": 0.009970457902511078,
+      "citeseer": 0.006011421701232342,
+      "citeseer_over_cora": 0.6029233321087845,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "cosine_0.95": {
+      "cora": 0.013663220088626292,
+      "citeseer": 0.012623985572587917,
+      "citeseer_over_cora": 0.9239392683937319,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "cosine_0.9": {
+      "cora": 0.021787296898079764,
+      "citeseer": 0.025849113315299068,
+      "citeseer_over_cora": 1.1864304891157607,
+      "reproduces_both": false,
+      "reproduces_cora_only": false,
+      "reproduces_citeseer_only": false
+    },
+    "cosine_0.8": {
+      "cora": 0.04098966026587888,
+      "citeseer": 0.051698226630598136,
+      "citeseer_over_cora": 1.2612504298708085,
+      "reproduces_both": false,
+      "reproduces_cora_only": false,
+      "reproduces_citeseer_only": true
+    },
+    "cosine_0.7": {
+      "cora": 0.057976366322008865,
+      "citeseer": 0.0793507664562669,
+      "citeseer_over_cora": 1.3686743666469474,
+      "reproduces_both": false,
+      "reproduces_cora_only": false,
+      "reproduces_citeseer_only": false
+    },
+    "jaccard_0.95": {
+      "cora": 0.011447562776957163,
+      "citeseer": 0.009618274721971746,
+      "citeseer_over_cora": 0.8402028370032093,
+      "reproduces_both": false,
+      "reproduces_cora_only": true,
+      "reproduces_citeseer_only": false
+    },
+    "jaccard_0.8": {
+      "cora": 0.024741506646971934,
+      "citeseer": 0.028854824165915238,
+      "citeseer_over_cora": 1.1662516991238576,
+      "reproduces_both": false,
+      "reproduces_cora_only": false,
+      "reproduces_citeseer_only": false
+    },
+    "jaccard_0.5": {
+      "cora": 0.07016248153618906,
+      "citeseer": 0.0985873159002104,
+      "citeseer_over_cora": 1.4051286918829988,
+      "reproduces_both": false,
+      "reproduces_cora_only": false,
+      "reproduces_citeseer_only": false
+    },
+    "identical_neighbour_set": {
+      "cora": 0.0775480059084195,
+      "citeseer": 0.17643522693116923,
+      "citeseer_over_cora": 2.2751742596647917,
+      "reproduces_both": false,
+      "reproduces_cora_only": false,
+      "reproduces_citeseer_only": false
+    },
+    "all_zero_feature_rows": {
+      "cora": 0.0,
+      "citeseer": 0.004508566275924256,
+      "citeseer_over_cora": Infinity,
+      "reproduces_both": false,
+      "reproduces_cora_only": false,
+      "reproduces_citeseer_only": false
+    }
+  },
+  "solves": {
+    "cosine": {
+      "threshold_giving_citeseer_5pct": 0.8006406426429749,
+      "citeseer_rate_there": 0.05049594229035167,
+      "cora_rate_at_the_same_threshold": 0.039512555391432794,
+      "cora_quoted": 0.01
+    },
+    "jaccard": {
+      "threshold_giving_citeseer_5pct": 0.6666666865348816,
+      "citeseer_rate_there": 0.051698226630598136,
+      "cora_rate_at_the_same_threshold": 0.04098966026587888,
+      "cora_quoted": 0.01
+    }
+  }
+}

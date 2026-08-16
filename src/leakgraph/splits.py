@@ -88,8 +88,37 @@ def induced_subgraph(
     return x[keep_mask], y[keep_mask], edge_index_sub, old_to_new
 
 
+def bisect_test_split(split: Split, seed: int = 0) -> tuple[Split, Tensor]:
+    """Halve the test set and hand the other half back as a spare pool.
+
+    The density control needs unlabelled nodes it can remove, and the geom-gcn splits of
+    chameleon and squirrel assign every node to train, val or test, so no such pool exists.
+    Reserving half of the test set manufactures one. A reserved node keeps its features and
+    its edges in the graph, its label is never used for anything, and it is never scored --
+    which is precisely the status of an unlabelled Planetoid node. The cost is that the
+    scored test set is half the size, so every measurement made on it is correspondingly
+    noisier, and the number of nodes removed by the inductive arm halves too.
+
+    Returns (split with the halved test set, boolean mask of the reserved pool).
+    """
+    test_ids = torch.nonzero(split.test_mask).flatten()
+    perm = test_ids[torch.randperm(test_ids.numel(), generator=torch.Generator().manual_seed(seed))]
+    half = perm.numel() // 2
+    scored = torch.zeros_like(split.test_mask)
+    scored[perm[:half]] = True
+    reserved = torch.zeros_like(split.test_mask)
+    reserved[perm[half:]] = True
+    return Split(split.train_mask.clone(), split.val_mask.clone(), scored), reserved
+
+
 def make_training_view(
-    x: Tensor, y: Tensor, edge_index: Tensor, split: Split, regime: str, seed: int = 0
+    x: Tensor,
+    y: Tensor,
+    edge_index: Tensor,
+    split: Split,
+    regime: str,
+    seed: int = 0,
+    pool_mask: Tensor | None = None,
 ) -> TrainingView:
     """Build the graph the model trains on.
 
@@ -110,7 +139,11 @@ def make_training_view(
 
     It needs spare nodes to remove, so it only works on splits that leave part of the graph
     unlabelled. The Planetoid public splits do. The geom-gcn splits of chameleon and squirrel
-    partition every node into train/val/test, so there is no pool to draw from and this raises.
+    partition every node into train/val/test, so there is no pool to draw from and this raises
+    -- unless `pool_mask` names one explicitly, which is how `bisect_test_split` recovers the
+    control on those two datasets. Passing `pool_mask` also lets the Planetoid runs use the
+    identical pool construction, so the two protocols can be compared rather than assumed
+    equivalent.
     """
     if regime == "transductive":
         return TrainingView(x, y, edge_index, split.train_mask, split.val_mask, regime)
@@ -118,7 +151,13 @@ def make_training_view(
     if regime == "inductive":
         keep = ~split.test_mask
     elif regime == "density_control":
-        pool = ~(split.train_mask | split.val_mask | split.test_mask)
+        pool = (
+            ~(split.train_mask | split.val_mask | split.test_mask)
+            if pool_mask is None
+            else pool_mask
+        )
+        if bool((pool & (split.train_mask | split.val_mask | split.test_mask)).any()):
+            raise ValueError("pool_mask overlaps train/val/test; the control would drop labels")
         n_remove = int(split.test_mask.sum())
         pool_idx = torch.nonzero(pool).flatten()
         if pool_idx.numel() < n_remove:

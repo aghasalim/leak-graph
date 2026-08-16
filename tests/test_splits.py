@@ -11,7 +11,13 @@ import torch
 
 from leakgraph.data import synthetic_graph
 from leakgraph.models import GCN
-from leakgraph.splits import Split, induced_subgraph, make_training_view, random_split
+from leakgraph.splits import (
+    Split,
+    bisect_test_split,
+    induced_subgraph,
+    make_training_view,
+    random_split,
+)
 
 
 @pytest.fixture
@@ -185,6 +191,55 @@ def test_density_control_raises_when_the_split_partitions_the_whole_graph(graph)
     with pytest.raises(ValueError, match="partitions the whole graph"):
         make_training_view(
             graph.x, graph.y, graph.edge_index, graph.splits[0], "density_control"
+        )
+
+
+def test_bisect_test_split_halves_the_test_set_and_reserves_the_other_half(graph):
+    split = graph.splits[0]
+    halved, reserved = bisect_test_split(split, seed=0)
+    n_test = int(split.test_mask.sum())
+    assert int(halved.test_mask.sum()) == n_test // 2
+    assert int(reserved.sum()) == n_test - n_test // 2
+    # the two halves partition the original test set exactly
+    assert torch.equal(halved.test_mask | reserved, split.test_mask)
+    assert not bool((halved.test_mask & reserved).any())
+    # train and val are untouched, so the model gets exactly the same supervision
+    assert torch.equal(halved.train_mask, split.train_mask)
+    assert torch.equal(halved.val_mask, split.val_mask)
+
+
+def test_reserved_half_is_unlabelled_and_unscored(graph):
+    """The bisection is only honest if the reserved nodes behave like unlabelled Planetoid
+    nodes: never supervised, never validated on, never scored."""
+    halved, reserved = bisect_test_split(graph.splits[0], seed=0)
+    labelled = halved.train_mask | halved.val_mask | halved.test_mask
+    assert not bool((reserved & labelled).any())
+
+
+def test_bisection_makes_the_density_control_constructible_on_a_full_partition(graph):
+    """The synthetic fixture partitions every node, exactly like the geom-gcn splits of
+    chameleon and squirrel. Without the bisection the control raises; with it, it builds and
+    is the same size as the inductive view."""
+    with pytest.raises(ValueError, match="partitions the whole graph"):
+        make_training_view(graph.x, graph.y, graph.edge_index, graph.splits[0], "density_control")
+
+    halved, reserved = bisect_test_split(graph.splits[0], seed=0)
+    ind = make_training_view(graph.x, graph.y, graph.edge_index, halved, "inductive")
+    ctl = make_training_view(
+        graph.x, graph.y, graph.edge_index, halved, "density_control", pool_mask=reserved
+    )
+    assert ctl.x.size(0) == ind.x.size(0)
+    assert int(ctl.train_mask.sum()) == int(halved.train_mask.sum())
+
+
+def test_density_control_refuses_a_pool_that_overlaps_the_labelled_sets(graph):
+    """A pool containing train or val nodes would delete supervision, which would make the
+    control measure less training data rather than less graph."""
+    split = graph.splits[0]
+    with pytest.raises(ValueError, match="overlaps"):
+        make_training_view(
+            graph.x, graph.y, graph.edge_index, split, "density_control",
+            pool_mask=split.train_mask,
         )
 
 
