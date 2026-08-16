@@ -53,6 +53,13 @@ what makes an effect of one accuracy point resolvable at all with ten seeds.
 | squirrel | LabelProp | 17.8 ± 1.3 | 17.8 ± 1.3 | **0.0 ± 0.0** | **no** |
 <!--END:inflation-->
 
+> **Read the `resolved?` column as split-specific.** Every cell marked *yes* here
+> is on the shipped geom-gcn / Planetoid splits. Under ten random splits
+> ([below](#a-second-split-scheme)) **not one of the ten GNN cells resolves**, and the
+> two negative GCN readings become null. The controls read 0.0 ± 0.0 under both
+> schemes, which is what makes the comparison trustworthy in either direction.
+
+
 `resolved?` asks whether the mean paired difference exceeds two standard errors of that same
 paired difference. Where it says **no**, I am not claiming an effect. A row reading `0.4 ± 1.1`
 with `no` means I measured nothing that ten seeds can distinguish from zero, and it is reported
