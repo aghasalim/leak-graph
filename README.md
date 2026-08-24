@@ -1,12 +1,43 @@
 # LeakGraph
 
-An audit kit for leakage in transductive GNN node-classification benchmarks. It measures
-duplicate nodes, feature–label leakage and neighbourhood-label leakage on the standard
-datasets, re-evaluates the standard models under a genuinely inductive split, and reports one
-number per (dataset, model): **leakage inflation**, the accuracy that transductive evaluation
-adds over inductive evaluation.
+**How much accuracy does transductive evaluation add on standard GNN node-classification benchmarks, and where does it come from?**
 
-## This is tooling, not a discovery
+[![tests](https://img.shields.io/badge/tests-36%20passing-brightgreen.svg)](tests/)
+[![licence](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+
+---
+
+## Abstract
+
+Transductive node classification evaluates a model on nodes that were present in
+the graph it trained on. The standard concern is that this leaks. This work
+measures the size of that leak on five benchmarks and four models under one
+protocol: identical splits, seeds, initialisation and epoch budget, differing
+only in whether the test nodes existed in the training graph. The difference is
+taken per seed and then averaged, so shared initialisation noise cancels.
+
+Inflation is real on the homophilous citation graphs and small — at most 1.5
+accuracy points, on Cora with GraphSAGE. On the two heterophilous graphs it
+reverses: GCN *loses* 2.5 points to the transductive split. LabelProp and MLP
+read exactly zero everywhere, which is the instrument check rather than a result,
+since neither can distinguish the two splits. Exposure and leakage turn out to be
+different quantities: squirrel exposes 40% of its test nodes to a labelled
+training neighbour against Cora's 21% and still inflates less, because a vote
+over those labels scores 21% there against a 19% majority baseline, versus 80%
+against 13% on Cora. An attempt to decompose inflation into a density term and a
+test-specific term mostly fails to resolve, and is reported as failing.
+
+**Contributions.** (i) One harness measuring duplicate, feature–label and
+neighbourhood-label leakage on the same splits with the same seeds. (ii) A
+headline metric, leakage inflation, comparable across datasets and models. (iii)
+Negative and density-matched controls, including a random split that reads zero.
+(iv) Evidence that the duplicate rate is largely a choice of definition, ranging
+from 0.04% to 45% on PubMed depending which is used.
+
+---
+
+## 1. Scope: this is tooling, not a discovery
+
 
 Every phenomenon measured here is already documented in the literature. I did not find any of
 it. What this repository contributes is a single harness that measures all of it on the same
@@ -17,7 +48,7 @@ the result. Treat it as a measuring device and a replication, not as a novel cla
 See [Prior work](#prior-work) for what was already known, with sources I verified before
 citing them.
 
-## The headline number
+## 2. The headline number
 
 ![leakage inflation by dataset and model](reports/figures/leakage-inflation.png)
 
@@ -140,7 +171,7 @@ parameters and propagates the same training labels over the same full graph in b
 must read exactly `0.0`. They do. When they did not, the harness was broken — see
 [Finding I1](#finding-i1-the-mlp-control-was-reporting-leakage-that-was-actually-a-dropout-rng-offset).
 
-## What the number means
+## 3. What the number means
 
 An accuracy gap on its own is uninterpretable. Two baselines bound it.
 
@@ -159,7 +190,14 @@ majority vote over its training-set neighbours. It can only predict test nodes t
 training neighbour, so the last column scores the GCN on exactly that subset, which is the only
 way the two numbers answer the same question.
 
-## Is the gap actually leakage?
+## 4. Is the gap actually leakage?
+
+![the same measurement under three conditions](reports/figures/controls.png)
+
+The random split is the negative control: it has no temporal or structural reason
+to leak, so a non-zero reading there would be a fault in the harness rather than a
+finding. It reads zero. The bisected-graph condition cuts the edges between the
+two halves and the inflation goes with them.
 
 Transductive minus inductive is confounded. The inductive training graph is missing the test
 nodes' information, which is the effect I want to price — but it is also simply a smaller and
@@ -338,7 +376,16 @@ component separately. It is a stricter reading than the original density table o
 is applied to that table too — which is how Cora GCN's test-specific component, PubMed's two,
 and CiteSeer GraphSAGE's negative one turn out to be the only resolved ones there.
 
-## Decomposing by duplicates
+## 5. Decomposing by duplicates
+
+![inflation split into a density term and a test-specific term](reports/figures/inflation-decomposition.png)
+
+Adding test nodes does two things at once: it makes the graph denser, helping any
+node, and it exposes the test nodes' own neighbourhoods. The density control
+separates them by adding an equal number of non-test nodes instead. Reported here
+because it mostly **does not resolve** — six of twelve components fail to clear
+their own noise, drawn hollow above, and the test-specific term comes out negative
+in three cases. The split is not a clean attribution and is not presented as one.
 
 A duplicate pair only leaks if it *straddles* the train/test boundary. Two identical nodes both
 sitting in the training set teach a model nothing it could not have learned from either copy;
@@ -363,7 +410,14 @@ straddling duplicates were worth.
 | squirrel | GraphSAGE | 0.1 ± 0.9 | 0.9 ± 1.0 | -0.8 |
 <!--END:components-->
 
-## The detectors
+## 6. The detectors
+
+![duplicate rate under sixteen definitions](reports/figures/duplicate-definitions.png)
+
+"Duplicate node" has no single meaning, and the choice dominates the answer.
+PubMed is 0.04% duplicated under exact match and 44.6% duplicated under identical
+neighbour set. Any headline duplicate figure is a threshold decision before it is
+a measurement, which is why all sixteen are reported rather than one.
 
 ![test-set exposure and what it is worth](reports/figures/leakage-channels.png)
 
@@ -519,7 +573,7 @@ Covered by the neighbour-vote column in [What the number means](#what-the-number
 Full output, including coverage and the accuracy restricted to covered nodes, is in
 `reports/detectors.json`.
 
-## The inductive split is the thing that has to be right
+## 7. The inductive split is the thing that has to be right
 
 Everything above is worthless if the inductive split is not actually inductive, and it is easy
 to get subtly wrong. The common shortcut is to keep the full node feature matrix and merely drop
@@ -547,7 +601,7 @@ scored on a graph containing test nodes until inference and model selection cann
 network and downloads nothing, which is what lets CI run it. CI additionally asserts that the
 test run left `data/` empty.
 
-## Instrument bugs
+## 8. Instrument bugs
 
 Both of these were found by the controls, not by inspection. They are recorded here rather than
 quietly patched, because a harness that has never been caught being wrong is a harness nobody
@@ -609,7 +663,7 @@ The pre-fix numbers in `reports/instrument_bug_mlp_rng.json` cannot be reproduce
 this repository, and that is deliberate: the current harness returns exactly `0.0`, which is the
 whole point of the fix. The artifact is committed as the record of the measurement.
 
-## Limitations
+## 9. Limitations
 
 - **Hyperparameters are fixed, not tuned.** One setting (2 layers, hidden 64, dropout 0.5, Adam
   at lr 0.01 and weight decay 5e-4, up to 300 epochs, best-validation checkpoint) is used for
@@ -639,7 +693,7 @@ whole point of the fix. The artifact is committed as the record of the measureme
   density control separates the size effect from the test-node-specific effect, but neither
   component is a claim about mechanism inside the model.
 
-## What I could not measure
+## 10. What I could not measure
 
 - ~~**The density control on chameleon and squirrel.**~~ Now measured, two ways — by reserving
   half the test set as the removal pool, and again under a second split scheme that leaves a
@@ -670,7 +724,7 @@ whole point of the fix. The artifact is committed as the record of the measureme
 - **Anything at OGB scale.** Everything here fits on a laptop CPU. Whether inflation behaves the
   same on graphs three orders of magnitude larger is untested, and I would not extrapolate.
 
-## Prior work
+## 11. Prior work
 
 Each of these I fetched and checked before citing. Where I could not verify a claim, I say so
 above rather than repeat it.
@@ -698,7 +752,7 @@ above rather than repeat it.
   proposes an inductive splitting scheme for single-graph datasets. This repository's inductive
   arm is the same idea; the contribution here is pricing it rather than proposing it.
 
-## Layout
+## 12. Repository layout
 
     src/leakgraph/
       data.py        dataset loading + the synthetic graph CI uses
@@ -714,7 +768,7 @@ above rather than repeat it.
     tests/           36 tests, synthetic graph only, no network
     reports/         committed result artifacts
 
-## Reproducing
+## 13. Reproducing
 
     make venv                    # .venv on python 3.12
     make test                    # 36 tests, seconds, no downloads
@@ -730,6 +784,6 @@ Every table above is written by `make tables` from the committed artifacts in `r
 the `<!--BEGIN:...-->` regions of this file. Nothing is typed in by hand. If a number here ever
 stops matching the artifacts, `make tables` produces a dirty git diff and says so.
 
-## Licence
+## 14. Licence
 
 MIT.
