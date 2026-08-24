@@ -19,6 +19,14 @@ citing them.
 
 ## The headline number
 
+![leakage inflation by dataset and model](reports/figures/leakage-inflation.png)
+
+Inflation is real on the homophilous citation graphs and small: 1.5 accuracy points at
+most, on Cora with GraphSAGE. On the heterophilous pair it goes the other way, and GCN
+loses 2.5 points to the transductive split rather than gaining. LabelProp and MLP sit at
+exactly zero everywhere, which is the instrument check — neither can distinguish the two
+splits, so any nonzero reading for them would mean the harness itself was leaking.
+
 `leakage inflation = transductive test accuracy − inductive test accuracy`, for the same
 model, the same split, the same seed, the same initialisation and the same epoch budget. The
 only thing that differs between the two arms is whether the test nodes existed in the graph
@@ -356,6 +364,15 @@ straddling duplicates were worth.
 <!--END:components-->
 
 ## The detectors
+
+![test-set exposure and what it is worth](reports/figures/leakage-channels.png)
+
+Exposure and leakage are not the same quantity, which is the most useful thing these
+detectors show. Squirrel exposes 40% of its test nodes to a labelled training neighbour
+against Cora's 21%, and still inflates less, because a vote over those neighbours' labels
+scores 21% there against a 19% majority baseline — almost nothing — while on Cora the same
+vote scores 80% against 13%. The channel is wide open on the heterophilous graphs and
+carries no signal.
 
 ### Duplicate and near-duplicate nodes
 

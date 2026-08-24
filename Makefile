@@ -2,7 +2,7 @@ PY ?= .venv/bin/python
 PIP ?= .venv/bin/pip
 
 .PHONY: venv install test audit audit-quick detectors control control-bisected \
-	control-random-splits duplicate-definitions tables clean
+	control-random-splits duplicate-definitions tables figures clean
 
 venv:
 	/Users/salim/.local/bin/python3.12 -m venv .venv || python3.12 -m venv .venv
@@ -51,6 +51,9 @@ duplicate-definitions:
 # Regenerates every table in the README from the committed artifacts.
 tables:
 	$(PY) experiments/make_tables.py > reports/tables.md
+
+figures:
+	$(PY) experiments/make_figures.py
 
 clean:
 	rm -rf reports/*.csv reports/*.json .pytest_cache **/__pycache__
