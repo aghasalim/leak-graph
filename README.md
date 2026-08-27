@@ -238,15 +238,3 @@ stops matching the artifacts,`make tables` produces a dirty git diff and says so
 ## 14. Licence
 
 MIT.
-
-## References
-
-The papers and sources this implementation follows. Each one is here because
-the code uses the method, the dataset or the metric it describes.
-
-- **Kipf, Welling. Semi-Supervised Classification with Graph Convolutional Networks. ICLR 2017.** [arXiv:1609.02907](https://arxiv.org/abs/1609.02907) the GCN used as the main classifier.
-- **Hamilton, Ying, Leskovec. Inductive Representation Learning on Large Graphs. NeurIPS 2017.** [arXiv:1706.02216](https://arxiv.org/abs/1706.02216) GraphSAGE, and the inductive setting the split protocol here depends on.
-- **Xu, Hu, Leskovec, Jegelka. How Powerful are Graph Neural Networks? ICLR 2019.** [arXiv:1810.00826](https://arxiv.org/abs/1810.00826) GIN, the third architecture in the sweep.
-- **Shchur, Mumme, Bojchevski, Günnemann. Pitfalls of Graph Neural Network Evaluation. 2018.** [arXiv:1811.05868](https://arxiv.org/abs/1811.05868) why split choice changes reported accuracy, which is the subject of this repo.
-- **Yang, Cohen, Salakhutdinov. Revisiting Semi-Supervised Learning with Graph Embeddings. ICML 2016.** [arXiv:1603.08861](https://arxiv.org/abs/1603.08861) the Planetoid splits for Cora, CiteSeer and PubMed.
-- **Fey, Lenssen. Fast Graph Representation Learning with PyTorch Geometric. 2019.** [arXiv:1903.02428](https://arxiv.org/abs/1903.02428) the library the models are built on.
