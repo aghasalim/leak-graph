@@ -2,7 +2,7 @@
 
 **How much accuracy does transductive evaluation add on standard GNN node-classification benchmarks, and where does it come from?**
 
-[![tests](https://img.shields.io/badge/tests-36%20passing-brightgreen.svg)](tests/)
+[![ci](https://github.com/aghasalim/leak-graph/actions/workflows/ci.yml/badge.svg)](https://github.com/aghasalim/leak-graph/actions/workflows/ci.yml)
 [![licence](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 
 ---
