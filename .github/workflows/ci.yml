@@ -28,5 +28,5 @@ jobs:
       - name: Assert the tests really did not download anything
         run: |
           if [ -d data ] && [ -n "$(ls -A data 2>/dev/null)" ]; then
-            echo "tests populated data/ -- a test is downloading a real dataset"; exit 1
+            echo "tests populated data/, a test is downloading a real dataset"; exit 1
           fi

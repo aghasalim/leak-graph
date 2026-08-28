@@ -4,7 +4,7 @@ benchmarks.
 This is tooling, not a discovery. The individual leakage phenomena it measures are already
 documented in the literature (see the README's Prior work section). What is here is a single
 harness that measures all of them on the same splits with the same seeds, plus one number --
-leakage inflation -- that summarises the cost of transductive evaluation per (dataset, model).
+leakage inflation, that summarises the cost of transductive evaluation per (dataset, model).
 """
 
 from .data import DATASETS, GraphData, load, synthetic_graph

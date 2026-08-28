@@ -1,7 +1,7 @@
 """Dataset loading, plus the synthetic graph that lets CI run without any download.
 
 Real datasets come from torch_geometric's loaders. The synthetic graph is a planted-partition
-graph with a controllable number of injected duplicate nodes -- it is what the tests use, and
+graph with a controllable number of injected duplicate nodes, it is what the tests use, and
 it is the only thing CI ever touches.
 """
 

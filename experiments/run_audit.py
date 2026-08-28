@@ -32,7 +32,7 @@ REPORTS = Path(__file__).resolve().parents[1] / "reports"
 
 
 def covered_by_train_neighbour(edge_index, train_mask, test_mask):
-    """Test nodes with at least one training-set neighbour -- the subset the parameter-free
+    """Test nodes with at least one training-set neighbour, the subset the parameter-free
     neighbour vote can actually predict. GNN accuracy is also reported on exactly this subset
     so the two numbers answer the same question."""
     has_train_nbr = torch.zeros_like(test_mask)
@@ -206,7 +206,7 @@ def main() -> None:
             )
 
         # Checkpoint after every dataset rather than once at the end. The full sweep takes
-        # hours, and an earlier version of this script wrote only on completion -- when that
+        # hours, and an earlier version of this script wrote only on completion: when that
         # run was killed partway, every completed dataset was lost with it. Rewriting the
         # whole file each time is O(datasets^2) in IO and completely irrelevant at five rows.
         _write(reports, all_rows, all_detectors)

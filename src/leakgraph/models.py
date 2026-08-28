@@ -57,7 +57,7 @@ class MLP(nn.Module):
 
     `uses_graph = False` is load-bearing, not decoration. It tells the harness to run this
     model on the masked rows only, so that its dropout draw does not depend on how many other
-    nodes happen to be in the view. Getting that wrong cost us a real false positive -- see
+    nodes happen to be in the view. Getting that wrong cost us a real false positive, see
     "Finding I1" in the README.
     """
 
