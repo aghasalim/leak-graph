@@ -45,7 +45,7 @@ splits with the same seeds under the same protocol, a headline metric that makes
 comparable across datasets and models, and a test suite that checks the instrument rather than
 the result. Treat it as a measuring device and a replication, not as a novel claim.
 
-See [Prior work](#prior-work) for what was already known, with sources I verified before
+See [Prior work](#11-prior-work) for what was already known, with sources I verified before
 citing them.
 
 ## 2. The headline number
@@ -117,7 +117,7 @@ How much of the label is already in a node's own features, with no graph at all.
 Full detail in [notes/METHODS.md](notes/METHODS.md#feature-label-leakage).
 ### Neighbourhood label leakage
 
-Covered by the neighbour-vote column in [What the number means](#what-the-number-means).
+Covered by the neighbour-vote column in [What the number means](#3-what-the-number-means).
 Full output, including coverage and the accuracy restricted to covered nodes, is in
 `reports/detectors.json`.
 
