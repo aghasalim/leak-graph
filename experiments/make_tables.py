@@ -221,10 +221,12 @@ def splice(text: str, name: str, body: str) -> str:
     """
     begin, end = f"<!--BEGIN:{name}-->", f"<!--END:{name}-->"
     if begin not in text or end not in text:
-        raise SystemExit(f"README is missing the {name} markers")
+        return text
     head, rest = text.split(begin, 1)
     _, tail = rest.split(end, 1)
-    return f"{head}{begin}\n{body}\n{end}{tail}"
+    # Blank lines around the body so a table never sits flush against the HTML
+    # comment, which would make the renderer treat it as an HTML block.
+    return f"{head}{begin}\n\n{body}\n\n{end}{tail}"
 
 
 def main() -> None:
@@ -258,13 +260,24 @@ def main() -> None:
         print(tables[key])
         print()
 
-    readme = REPORTS.parent / "README.md"
-    if readme.exists():
-        text = readme.read_text()
+    # The tables live in two files since the README was shortened, so splice into
+    # both and fail loudly if some table has no home in either.
+    root = REPORTS.parent
+    written = {name: 0 for name in tables}
+    for doc in (root / "README.md", root / "notes" / "METHODS.md"):
+        if not doc.exists():
+            continue
+        text = original = doc.read_text()
         for name, body in tables.items():
+            if f"<!--BEGIN:{name}-->" in text:
+                written[name] += 1
             text = splice(text, name, body)
-        readme.write_text(text)
-        print(f"<!-- spliced {len(tables)} tables into {readme.name} -->", file=sys.stderr)
+        if text != original:
+            doc.write_text(text)
+            print(f"<!-- spliced into {doc.name} -->", file=sys.stderr)
+    missing = [n for n, c in written.items() if c == 0]
+    if missing:
+        raise SystemExit("no markers found for: " + ", ".join(missing))
 
 
 if __name__ == "__main__":
