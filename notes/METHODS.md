@@ -681,7 +681,7 @@ whole point of the fix. The artifact is committed as the record of the measureme
 ## 2. The headline number
 
 
-![leakage inflation by dataset and model](reports/figures/leakage-inflation.png)
+![leakage inflation by dataset and model](../reports/figures/leakage-inflation.png)
 
 Inflation is real on the homophilous citation graphs and small: 1.5 accuracy points at
 most, on Cora with GraphSAGE. On the heterophilous pair it goes the other way, and GCN
@@ -739,7 +739,7 @@ at the same size and in the same table as the rows that did resolve.
 ## 4. Is the gap actually leakage?
 
 
-![the same measurement under three conditions](reports/figures/controls.png)
+![the same measurement under three conditions](../reports/figures/controls.png)
 
 The random split is the negative control: it has no temporal or structural reason
 to leak, so a non-zero reading there would be a fault in the harness rather than a
@@ -807,7 +807,7 @@ sections build it a different way.
 ## 5. Decomposing by duplicates
 
 
-![inflation split into a density term and a test-specific term](reports/figures/inflation-decomposition.png)
+![inflation split into a density term and a test-specific term](../reports/figures/inflation-decomposition.png)
 
 Adding test nodes does two things at once: it makes the graph denser, helping any
 node, and it exposes the test nodes' own neighbourhoods. The density control
@@ -843,14 +843,14 @@ straddling duplicates were worth.
 ## 6. The detectors
 
 
-![duplicate rate under sixteen definitions](reports/figures/duplicate-definitions.png)
+![duplicate rate under sixteen definitions](../reports/figures/duplicate-definitions.png)
 
 "Duplicate node" has no single meaning, and the choice dominates the answer.
 PubMed is 0.04% duplicated under exact match and 44.6% duplicated under identical
 neighbour set. Any headline duplicate figure is a threshold decision before it is
 a measurement, which is why all sixteen are reported rather than one.
 
-![test-set exposure and what it is worth](reports/figures/leakage-channels.png)
+![test-set exposure and what it is worth](../reports/figures/leakage-channels.png)
 
 Exposure and leakage are not the same quantity, which is the most useful thing these
 detectors show. Squirrel exposes 40% of its test nodes to a labelled training neighbour
