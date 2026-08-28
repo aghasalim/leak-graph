@@ -42,7 +42,7 @@ splits with the same seeds under the same protocol, a headline metric that makes
 comparable across datasets and models, and a test suite that checks the instrument rather than
 the result. Treat it as a measuring device and a replication, not as a novel claim.
 
-See [Prior work](#prior-work) for what was already known, with sources I verified before
+See [Prior work](../README.md#11-prior-work) for what was already known, with sources I verified before
 citing them.
 
 `leakage inflation = transductive test accuracy − inductive test accuracy`, for the same
@@ -96,7 +96,7 @@ accuracy. Mostly it is not.
   has 1,580 straddling near-duplicate pairs. Duplicates are abundant; their contribution to
   *this particular* gap is small.
 - **Most of what inflation there is turns out not to be leakage at all.** The
-  [density control](#is-the-gap-actually-leakage) removes an equal number of *unlabelled*
+  [density control](#4-is-the-gap-actually-leakage) removes an equal number of *unlabelled*
   nodes instead of the test nodes. For GraphSAGE on Cora and CiteSeer that alone costs more
   accuracy than the full inflation does (2.4 and 2.8 points, both resolved), leaving a negative
   test-node-specific remainder. Only three of the twelve cells hold a *resolved positive*
@@ -132,6 +132,66 @@ have a transductive/inductive gap: the MLP never reads the graph, and label prop
 parameters and propagates the same training labels over the same full graph in both arms. Both
 must read exactly `0.0`. They do. When they did not, the harness was broken, see
 [Finding I1](#finding-i1-the-mlp-control-was-reporting-leakage-that-was-actually-a-dropout-rng-offset).
+
+## 2. The headline number
+
+
+![leakage inflation by dataset and model](../reports/figures/leakage-inflation.png)
+
+Inflation is real on the homophilous citation graphs and small: 1.5 accuracy points at
+most, on Cora with GraphSAGE. On the heterophilous pair it goes the other way, and GCN
+loses 2.5 points to the transductive split rather than gaining. LabelProp and MLP sit at
+exactly zero everywhere, which is the instrument check, neither can distinguish the two
+splits, so any nonzero reading for them would mean the harness itself was leaking.
+
+`leakage inflation = transductive test accuracy − inductive test accuracy`, for the same
+model, the same split, the same seed, the same initialisation and the same epoch budget. The
+only thing that differs between the two arms is whether the test nodes existed in the graph
+the model trained on.
+
+The difference is computed **per seed and then averaged**, not as a difference of two averages.
+Initialisation noise is shared between the arms and cancels in the paired difference, which is
+what makes an effect of one accuracy point resolvable at all with ten seeds.
+
+<!--BEGIN:inflation-->
+
+| dataset | model | transductive | inductive | **inflation** | resolved? |
+|---|---|---|---|---|---|
+| Cora | GCN | 81.3 ± 0.7 | 80.3 ± 0.7 | **1.0 ± 0.9** | yes |
+| Cora | GraphSAGE | 80.4 ± 0.7 | 78.9 ± 0.8 | **1.5 ± 1.0** | yes |
+| Cora | MLP | 56.9 ± 0.8 | 56.9 ± 0.8 | **0.0 ± 0.0** | **no** |
+| Cora | LabelProp | 60.3 ± 0.0 | 60.3 ± 0.0 | **0.0 ± 0.0** | **no** |
+| CiteSeer | GCN | 69.2 ± 0.7 | 68.5 ± 0.8 | **0.7 ± 1.2** | **no** |
+| CiteSeer | GraphSAGE | 68.5 ± 1.3 | 67.5 ± 1.1 | **1.1 ± 1.4** | yes |
+| CiteSeer | MLP | 52.7 ± 1.0 | 52.7 ± 1.0 | **0.0 ± 0.0** | **no** |
+| CiteSeer | LabelProp | 36.6 ± 0.0 | 36.6 ± 0.0 | **0.0 ± 0.0** | **no** |
+| PubMed | GCN | 78.6 ± 0.7 | 78.3 ± 0.6 | **0.3 ± 1.2** | **no** |
+| PubMed | GraphSAGE | 76.8 ± 0.9 | 76.7 ± 0.9 | **0.1 ± 1.2** | **no** |
+| PubMed | MLP | 72.5 ± 0.4 | 72.5 ± 0.4 | **0.0 ± 0.0** | **no** |
+| PubMed | LabelProp | 42.0 ± 0.0 | 42.0 ± 0.0 | **0.0 ± 0.0** | **no** |
+| chameleon | GCN | 37.6 ± 2.8 | 40.0 ± 2.6 | **-2.5 ± 2.0** | yes |
+| chameleon | GraphSAGE | 51.6 ± 1.6 | 51.0 ± 1.7 | **0.6 ± 1.3** | **no** |
+| chameleon | MLP | 50.5 ± 3.0 | 50.5 ± 3.0 | **0.0 ± 0.0** | **no** |
+| chameleon | LabelProp | 21.8 ± 1.5 | 21.8 ± 1.5 | **0.0 ± 0.0** | **no** |
+| squirrel | GCN | 26.2 ± 1.4 | 27.4 ± 1.8 | **-1.2 ± 1.3** | yes |
+| squirrel | GraphSAGE | 37.4 ± 2.1 | 37.3 ± 1.9 | **0.1 ± 0.9** | **no** |
+| squirrel | MLP | 36.2 ± 1.7 | 36.2 ± 1.7 | **0.0 ± 0.0** | **no** |
+| squirrel | LabelProp | 17.8 ± 1.3 | 17.8 ± 1.3 | **0.0 ± 0.0** | **no** |
+
+<!--END:inflation-->
+
+> **Read the `resolved?` column as split-specific.** Every cell marked *yes* here
+> is on the shipped geom-gcn / Planetoid splits. Under ten random splits
+> ([below](#a-second-split-scheme)) **not one of the ten GNN cells resolves**, and the
+> two negative GCN readings become null. The controls read 0.0 ± 0.0 under both
+> schemes, which is what makes the comparison trustworthy in either direction.
+
+
+`resolved?` asks whether the mean paired difference exceeds two standard errors of that same
+paired difference. Where it says **no**, I am not claiming an effect. A row reading `0.4 ± 1.1`
+with `no` means I measured nothing that ten seeds can distinguish from zero, and it is reported
+at the same size and in the same table as the rows that did resolve.
+
 
 ## 3. What the number means
 
@@ -343,6 +403,8 @@ component separately. It is a stricter reading than the original density table o
 is applied to that table too, which is how Cora GCN's test-specific component, PubMed's two,
 and CiteSeer GraphSAGE's negative one turn out to be the only resolved ones there.
 
+![the same measurement under three conditions](../reports/figures/controls.png)
+
 ## 5. Decomposing by duplicates
 
 Adding test nodes does two things at once: it makes the graph denser, helping any
@@ -376,6 +438,8 @@ straddling duplicates were worth.
 | squirrel | GraphSAGE | 0.1 ± 0.9 | 0.9 ± 1.0 | -0.8 |
 
 <!--END:components-->
+
+![inflation split into a density term and a test-specific term](../reports/figures/inflation-decomposition.png)
 
 ## 6. The detectors
 
@@ -538,9 +602,13 @@ than assumed.
 
 ### Neighbourhood label leakage
 
-Covered by the neighbour-vote column in [What the number means](#what-the-number-means).
+Covered by the neighbour-vote column in [What the number means](#3-what-the-number-means).
 Full output, including coverage and the accuracy restricted to covered nodes, is in
 `reports/detectors.json`.
+
+![duplicate rate under sixteen definitions](../reports/figures/duplicate-definitions.png)
+
+![test-set exposure and what it is worth](../reports/figures/leakage-channels.png)
 
 ## 7. The inductive split is the thing that has to be right
 
@@ -692,187 +760,3 @@ whole point of the fix. The artifact is committed as the record of the measureme
   to architecture or tuning.
 - **Anything at OGB scale.** Everything here fits on a laptop CPU. Whether inflation behaves the
   same on graphs three orders of magnitude larger is untested, and I would not extrapolate.
-
-
-## 2. The headline number
-
-
-![leakage inflation by dataset and model](../reports/figures/leakage-inflation.png)
-
-Inflation is real on the homophilous citation graphs and small: 1.5 accuracy points at
-most, on Cora with GraphSAGE. On the heterophilous pair it goes the other way, and GCN
-loses 2.5 points to the transductive split rather than gaining. LabelProp and MLP sit at
-exactly zero everywhere, which is the instrument check, neither can distinguish the two
-splits, so any nonzero reading for them would mean the harness itself was leaking.
-
-`leakage inflation = transductive test accuracy − inductive test accuracy`, for the same
-model, the same split, the same seed, the same initialisation and the same epoch budget. The
-only thing that differs between the two arms is whether the test nodes existed in the graph
-the model trained on.
-
-The difference is computed **per seed and then averaged**, not as a difference of two averages.
-Initialisation noise is shared between the arms and cancels in the paired difference, which is
-what makes an effect of one accuracy point resolvable at all with ten seeds.
-
-<!--BEGIN:inflation-->
-
-| dataset | model | transductive | inductive | **inflation** | resolved? |
-|---|---|---|---|---|---|
-| Cora | GCN | 81.3 ± 0.7 | 80.3 ± 0.7 | **1.0 ± 0.9** | yes |
-| Cora | GraphSAGE | 80.4 ± 0.7 | 78.9 ± 0.8 | **1.5 ± 1.0** | yes |
-| Cora | MLP | 56.9 ± 0.8 | 56.9 ± 0.8 | **0.0 ± 0.0** | **no** |
-| Cora | LabelProp | 60.3 ± 0.0 | 60.3 ± 0.0 | **0.0 ± 0.0** | **no** |
-| CiteSeer | GCN | 69.2 ± 0.7 | 68.5 ± 0.8 | **0.7 ± 1.2** | **no** |
-| CiteSeer | GraphSAGE | 68.5 ± 1.3 | 67.5 ± 1.1 | **1.1 ± 1.4** | yes |
-| CiteSeer | MLP | 52.7 ± 1.0 | 52.7 ± 1.0 | **0.0 ± 0.0** | **no** |
-| CiteSeer | LabelProp | 36.6 ± 0.0 | 36.6 ± 0.0 | **0.0 ± 0.0** | **no** |
-| PubMed | GCN | 78.6 ± 0.7 | 78.3 ± 0.6 | **0.3 ± 1.2** | **no** |
-| PubMed | GraphSAGE | 76.8 ± 0.9 | 76.7 ± 0.9 | **0.1 ± 1.2** | **no** |
-| PubMed | MLP | 72.5 ± 0.4 | 72.5 ± 0.4 | **0.0 ± 0.0** | **no** |
-| PubMed | LabelProp | 42.0 ± 0.0 | 42.0 ± 0.0 | **0.0 ± 0.0** | **no** |
-| chameleon | GCN | 37.6 ± 2.8 | 40.0 ± 2.6 | **-2.5 ± 2.0** | yes |
-| chameleon | GraphSAGE | 51.6 ± 1.6 | 51.0 ± 1.7 | **0.6 ± 1.3** | **no** |
-| chameleon | MLP | 50.5 ± 3.0 | 50.5 ± 3.0 | **0.0 ± 0.0** | **no** |
-| chameleon | LabelProp | 21.8 ± 1.5 | 21.8 ± 1.5 | **0.0 ± 0.0** | **no** |
-| squirrel | GCN | 26.2 ± 1.4 | 27.4 ± 1.8 | **-1.2 ± 1.3** | yes |
-| squirrel | GraphSAGE | 37.4 ± 2.1 | 37.3 ± 1.9 | **0.1 ± 0.9** | **no** |
-| squirrel | MLP | 36.2 ± 1.7 | 36.2 ± 1.7 | **0.0 ± 0.0** | **no** |
-| squirrel | LabelProp | 17.8 ± 1.3 | 17.8 ± 1.3 | **0.0 ± 0.0** | **no** |
-
-<!--END:inflation-->
-
-> **Read the `resolved?` column as split-specific.** Every cell marked *yes* here
-> is on the shipped geom-gcn / Planetoid splits. Under ten random splits
-> ([below](#a-second-split-scheme)) **not one of the ten GNN cells resolves**, and the
-> two negative GCN readings become null. The controls read 0.0 ± 0.0 under both
-> schemes, which is what makes the comparison trustworthy in either direction.
-
-
-`resolved?` asks whether the mean paired difference exceeds two standard errors of that same
-paired difference. Where it says **no**, I am not claiming an effect. A row reading `0.4 ± 1.1`
-with `no` means I measured nothing that ten seeds can distinguish from zero, and it is reported
-at the same size and in the same table as the rows that did resolve.
-
-
-## 4. Is the gap actually leakage?
-
-
-![the same measurement under three conditions](../reports/figures/controls.png)
-
-The random split is the negative control: it has no temporal or structural reason
-to leak, so a non-zero reading there would be a fault in the harness rather than a
-finding. It reads zero. The bisected-graph condition cuts the edges between the
-two halves and the inflation goes with them.
-
-Transductive minus inductive is confounded. The inductive training graph is missing the test
-nodes' information, which is the effect I want to price, but it is also simply a smaller and
-sparser graph, and that costs accuracy on its own for reasons that have nothing to do with
-leakage.
-
-So I ran a third arm. `density_control` removes the same *number* of nodes from the inductive
-view, but draws them from the unlabelled pool, nodes the model was never going to be scored on, instead of the test set. That splits the headline gap in two:
-
-    transductive − density_control  = the cost of a smaller, sparser training graph
-    density_control − inductive     = what is specific to hiding the test nodes
-
-<!--BEGIN:density-->
-| dataset | model | total inflation | density cost | resolved? | test-node-specific | resolved? |
-|---|---|---|---|---|---|---|
-| Cora | GCN | 1.0 ± 0.9 | 0.1 ± 0.8 | **no** | 1.0 ± 0.9 | yes |
-| Cora | GraphSAGE | 1.5 ± 1.0 | 2.4 ± 1.2 | yes | -0.8 ± 1.6 | **no** |
-| Cora | MLP | 0.0 ± 0.0 | 0.0 ± 0.0 | **no** | 0.0 ± 0.0 | **no** |
-| Cora | LabelProp | 0.0 ± 0.0 | 0.0 ± 0.0 | **no** | 0.0 ± 0.0 | **no** |
-| CiteSeer | GCN | 0.7 ± 1.2 | 1.2 ± 1.0 | yes | -0.5 ± 1.4 | **no** |
-| CiteSeer | GraphSAGE | 1.1 ± 1.4 | 2.8 ± 1.8 | yes | -1.8 ± 1.8 | yes |
-| CiteSeer | MLP | 0.0 ± 0.0 | 0.0 ± 0.0 | **no** | 0.0 ± 0.0 | **no** |
-| CiteSeer | LabelProp | 0.0 ± 0.0 | 0.0 ± 0.0 | **no** | 0.0 ± 0.0 | **no** |
-| PubMed | GCN | 0.3 ± 1.2 | -0.3 ± 0.8 | **no** | 0.6 ± 0.5 | yes |
-| PubMed | GraphSAGE | 0.1 ± 1.2 | -0.6 ± 1.2 | **no** | 0.7 ± 1.0 | yes |
-| PubMed | MLP | 0.0 ± 0.0 | 0.0 ± 0.0 | **no** | 0.0 ± 0.0 | **no** |
-| PubMed | LabelProp | 0.0 ± 0.0 | 0.0 ± 0.0 | **no** | 0.0 ± 0.0 | **no** |
-<!--END:density-->
-
-**This is the most consequential table in the repository, and it undercuts the headline metric.**
-For GraphSAGE on Cora and CiteSeer the density cost (2.4 and 2.8 points) is *larger than the
-total inflation*, and the test-node-specific remainder is negative. In other words, essentially
-none of GraphSAGE's apparent leakage inflation on the citation networks is leakage: it is the
-model reacting to a training graph with 1,000 fewer nodes in it. The same is true of CiteSeer
-GCN. Only **Cora GCN** has its inflation survive the control roughly intact (1.0 total, 0.1
-density, 1.0 test-specific), and that is the one cell whose test-specific component resolves
-while its density cost does not.
-
-Two smaller notes. On PubMed the density cost is slightly *negative*, the smaller graph trained
-marginally better, so the test-specific component (0.6 and 0.7 points) is larger than the
-unresolved total, which is a reminder that the two components need not have the same sign. And
-each component now carries its own two-standard-error resolution mark, which an earlier version
-of this table did not have. It changes the reading: **seven of the twelve components resolve**,
-and they are not the ones a glance at the point estimates would pick. Cora GCN's test-specific
-1.0 resolves while its density cost does not; PubMed's two test-specific components (0.6 and
-0.7) resolve even though neither total does; CiteSeer GraphSAGE resolves *both*, a density cost
-of 2.8 and a test-specific component of −1.8.
-
-The MLP and LabelProp rows are the same calibration as in the headline table, extended to the
-third arm: neither model can react to which nodes were removed, so all three of their columns
-must read exactly `0.00`, and they do.
-
-The control needs spare unlabelled nodes to remove. The Planetoid public splits leave most of
-the graph unlabelled, so it works there. The geom-gcn splits of chameleon and squirrel assign
-every single node to train, val or test, so no pool exists and the control cannot be built
-*this way*, which is why those two datasets are absent from this table, and why the next two
-sections build it a different way.
-
-
-## 5. Decomposing by duplicates
-
-
-![inflation split into a density term and a test-specific term](../reports/figures/inflation-decomposition.png)
-
-Adding test nodes does two things at once: it makes the graph denser, helping any
-node, and it exposes the test nodes' own neighbourhoods. The density control
-separates them by adding an equal number of non-test nodes instead. Reported here
-because it mostly **does not resolve**: six of twelve components fail to clear
-their own noise, drawn hollow above, and the test-specific term comes out negative
-in three cases. The split is not a clean attribution and is not presented as one.
-
-A duplicate pair only leaks if it *straddles* the train/test boundary. Two identical nodes both
-sitting in the training set teach a model nothing it could not have learned from either copy;
-it is the pair with one foot in train and one in test that hands over the answer.
-
-So the same paired difference is recomputed while scoring only test nodes that have **no**
-near-duplicate twin anywhere in the training set. Whatever inflation disappears is what the
-straddling duplicates were worth.
-
-<!--BEGIN:components-->
-| dataset | model | inflation (all test) | inflation (no straddling duplicates) | duplicate component |
-|---|---|---|---|---|
-| Cora | GCN | 1.0 ± 0.9 | 1.1 ± 0.9 | -0.0 |
-| Cora | GraphSAGE | 1.5 ± 1.0 | 1.6 ± 1.0 | -0.0 |
-| CiteSeer | GCN | 0.7 ± 1.2 | 0.6 ± 1.3 | 0.1 |
-| CiteSeer | GraphSAGE | 1.1 ± 1.4 | 1.0 ± 1.3 | 0.1 |
-| PubMed | GCN | 0.3 ± 1.2 | 0.3 ± 1.2 | 0.0 |
-| PubMed | GraphSAGE | 0.1 ± 1.2 | 0.1 ± 1.2 | -0.0 |
-| chameleon | GCN | -2.5 ± 2.0 | -3.2 ± 2.7 | 0.8 |
-| chameleon | GraphSAGE | 0.6 ± 1.3 | -0.2 ± 1.9 | 0.8 |
-| squirrel | GCN | -1.2 ± 1.3 | -1.6 ± 2.3 | 0.4 |
-| squirrel | GraphSAGE | 0.1 ± 0.9 | 0.9 ± 1.0 | -0.8 |
-<!--END:components-->
-
-
-## 6. The detectors
-
-
-![duplicate rate under sixteen definitions](../reports/figures/duplicate-definitions.png)
-
-"Duplicate node" has no single meaning, and the choice dominates the answer.
-PubMed is 0.04% duplicated under exact match and 44.6% duplicated under identical
-neighbour set. Any headline duplicate figure is a threshold decision before it is
-a measurement, which is why all sixteen are reported rather than one.
-
-![test-set exposure and what it is worth](../reports/figures/leakage-channels.png)
-
-Exposure and leakage are not the same quantity, which is the most useful thing these
-detectors show. Squirrel exposes 40% of its test nodes to a labelled training neighbour
-against Cora's 21%, and still inflates less, because a vote over those neighbours' labels
-scores 21% there against a 19% majority baseline, almost nothing, while on Cora the same
-vote scores 80% against 13%. The channel is wide open on the heterophilous graphs and
-carries no signal.
