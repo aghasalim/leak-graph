@@ -53,6 +53,10 @@ Inflation is real on the homophilous citation graphs and small: 1.5 accuracy poi
 
 ![leakage inflation by dataset and model](reports/figures/leakage-inflation.png)
 
+![running leakage inflation as seeds are added](reports/figures/seeds-versus-noise.gif)
+
+*Running leakage inflation on the three citation graphs as seeds are added one at a time; the mean and its two standard error band move, while the runs, models and splits behind them stay fixed.*
+
 Full detail in [notes/METHODS.md](notes/METHODS.md#2-the-headline-number).
 ### What I actually found, including the parts that argue against the premise
 I built this expecting transductive evaluation to be buying the GNNs a visible amount of accuracy.
