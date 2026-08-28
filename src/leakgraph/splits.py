@@ -3,8 +3,8 @@
 The single most important thing in this repository is `induced_subgraph`. An inductive
 split is only inductive if the test nodes are *physically absent* from the graph the model
 trains on. A common shortcut is to keep the full node feature matrix and merely drop the
-edges that touch test nodes. That is *probably* fine for a plain GCN -- isolated rows do not
-influence anyone else's representation -- but it is not provable, it breaks the moment a
+edges that touch test nodes. That is *probably* fine for a plain GCN, isolated rows do not
+influence anyone else's representation, but it is not provable, it breaks the moment a
 model uses any node-set-level statistic (BatchNorm over all nodes, a global readout,
 degree normalisation over the full index), and it cannot be tested by construction.
 
@@ -140,7 +140,7 @@ def make_training_view(
     It needs spare nodes to remove, so it only works on splits that leave part of the graph
     unlabelled. The Planetoid public splits do. The geom-gcn splits of chameleon and squirrel
     partition every node into train/val/test, so there is no pool to draw from and this raises
-    -- unless `pool_mask` names one explicitly, which is how `bisect_test_split` recovers the
+, unless `pool_mask` names one explicitly, which is how `bisect_test_split` recovers the
     control on those two datasets. Passing `pool_mask` also lets the Planetoid runs use the
     identical pool construction, so the two protocols can be compared rather than assumed
     equivalent.

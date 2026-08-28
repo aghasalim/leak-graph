@@ -135,7 +135,7 @@ def scan_duplicates(x: Tensor, seed: int = 0) -> DuplicateScan:
     group_sizes = counts[inverse]
 
     # Nodes whose feature row is entirely zero are mutually identical, so `torch.unique` counts
-    # them as exact duplicates -- but cosine similarity is undefined for a zero vector, so they
+    # them as exact duplicates: but cosine similarity is undefined for a zero vector, so they
     # cannot appear in the near-duplicate pairs and are silently absent from the straddling
     # analysis. CiteSeer has such nodes. Report the count rather than let the two duplicate
     # measurements disagree for an unstated reason.

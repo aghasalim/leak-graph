@@ -37,7 +37,7 @@ class RunResult:
     test_accuracy: float
     # scored only on test nodes with no near-duplicate twin in the training set
     test_accuracy_dedup: float
-    # scored only on test nodes that have at least one training-set neighbour -- the subset
+    # scored only on test nodes that have at least one training-set neighbour: the subset
     # the parameter-free neighbour vote is able to predict, so that the two are comparable
     test_accuracy_nbr_covered: float
     val_accuracy: float
@@ -53,7 +53,7 @@ def _accuracy(pred: Tensor, y: Tensor, mask: Tensor) -> float:
 def _logits(net, x: Tensor, edge_index: Tensor, mask: Tensor | None = None) -> Tensor:
     """Logits, restricted to `mask` if given.
 
-    Graph-using models must see the whole view -- that is what message passing is. Graph-free
+    Graph-using models must see the whole view, that is what message passing is. Graph-free
     models are run on the masked rows only, and this is not an optimisation. If an MLP is fed
     the full node matrix, its dropout mask is drawn at the view's shape, so the inductive view
     (fewer rows) and the transductive view (more rows) consume the RNG differently and the
@@ -92,7 +92,7 @@ def train_one(
     if model_name == "LabelProp":
         # No parameters and nothing to fit. Both regimes propagate the same training labels
         # over the same full graph at inference, so this is identical in both arms by
-        # construction -- it is the harness's control, not a competitor.
+        # construction: it is the harness's control, not a competitor.
         pred = models.LabelProp().predict(data.y, data.edge_index, split.train_mask)
         return RunResult(
             data.name,

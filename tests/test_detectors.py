@@ -28,7 +28,7 @@ def test_exact_duplicate_count_matches_injected_ground_truth():
     split = g.splits[0]
     report, _, _ = duplicate_report(g.x, g.y, split.train_mask, split.test_mask)
     # the fixture copies node i*C onto node i*C+C for i in range(num_duplicates), so the
-    # copies chain into runs -- count pairs rather than assuming they are disjoint
+    # copies chain into runs: count pairs rather than assuming they are disjoint
     assert report.exact_duplicate_pairs >= 1
     assert report.exact_duplicate_nodes >= 2
 

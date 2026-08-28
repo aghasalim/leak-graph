@@ -3,8 +3,8 @@
 Transductive minus inductive is not a clean measurement of leakage. The inductive training
 graph is missing the test nodes' information, which is the thing we want to price, but it is
 also just a smaller and sparser graph, and that costs accuracy by itself. This script removes
-an equal number of *unlabelled non-test* nodes instead -- nodes the model was never going to
-be scored on -- so that the size change is held constant and only the identity of what was
+an equal number of *unlabelled non-test* nodes instead, nodes the model was never going to
+be scored on, so that the size change is held constant and only the identity of what was
 removed differs.
 
     transductive - density_control  = the cost of a smaller training graph
@@ -18,14 +18,14 @@ every node to train, val or test, so there is no pool at all.
 
 `--bisect`: reserve half of the test set as the pool and score on the other half. A reserved
 node keeps its features and edges in the graph, its label is never used, and it is never
-scored -- the exact status of an unlabelled Planetoid node -- so the control becomes
+scored, the exact status of an unlabelled Planetoid node, so the control becomes
 constructible on every dataset. It is run on the Planetoid splits too, where the ordinary
 control also works, so the two can be compared instead of the bisection being assumed valid.
 
 `--random-splits`: throw away the shipped splits entirely and draw ten random Planetoid-style
 splits per dataset (20 per class train, 500 val, 500 test). This is a second split scheme,
 so its variance includes split variance rather than initialisation only, and it leaves a
-large unlabelled pool on every dataset -- an independent route to the control on chameleon
+large unlabelled pool on every dataset, an independent route to the control on chameleon
 and squirrel that shares no construction with `--bisect`.
 
     python experiments/run_density_control.py
