@@ -27,7 +27,7 @@ over those labels scores 21% there against a 19% majority baseline, versus 80%
 against 13% on Cora. An attempt to decompose inflation into a density term and a
 test-specific term mostly fails to resolve, and is reported as failing.
 
-**Contributions.** (i) One harness measuring duplicate, feature, label and
+**Contributions.** (i) One harness measuring duplicate, feature-label and
 neighbourhood-label leakage on the same splits with the same seeds. (ii) A
 headline metric, leakage inflation, comparable across datasets and models. (iii)
 Negative and density-matched controls, including a random split that reads zero.
@@ -108,7 +108,7 @@ Full detail in [notes/METHODS.md](notes/METHODS.md#6-the-detectors).
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#duplicate-and-near-duplicate-nodes).
 ### Trying to reconcile the CiteSeer duplicate rate
-"Duplicate" is not one definition, so the disagreement might be a definitional difference rather than a conflict.`make duplicate-definitions` evaluates eighteen readings of it on all five datasets: exact feature match counted four different ways, with and without labels, with and without the all-zero rows, near-duplicates at five cosine cutoffs and three Jaccard cutoffs, and duplication defined on the graph instead of the features.
+"Duplicate" is not one definition, so the disagreement might be a definitional difference rather than a conflict. `make duplicate-definitions` evaluates eighteen readings of it on all five datasets: exact feature match counted four different ways, with and without labels, with and without the all-zero rows, near-duplicates at five cosine cutoffs and three Jaccard cutoffs, and duplication defined on the graph instead of the features.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#trying-to-reconcile-the-citeseer-duplicate-rate).
 ### Feature, label leakage
@@ -135,20 +135,20 @@ has checked.
 The MLP cannot have a transductive/inductive gap.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#finding-i1-the-mlp-control-was-reporting-leakage-that-was-actually-a-dropout-rng-offset).
-### Finding I2:`random_split` silently produced an empty test set
+### Finding I2: `random_split` silently produced an empty test set
 
 Asking the Planetoid defaults (500 val, 1000 test) of a graph too small to supply them made the
-test slice come out empty. Every downstream accuracy then became`NaN`, reproducibly, and with
-no error. A metric that is silently`NaN` is worse than a crash, because it looks like a result.
-`random_split` now raises, and`test_random_split_refuses_to_silently_produce_an_empty_test_set`
+test slice come out empty. Every downstream accuracy then became `NaN`, reproducibly, and with
+no error. A metric that is silently `NaN` is worse than a crash, because it looks like a result.
+`random_split` now raises, and `test_random_split_refuses_to_silently_produce_an_empty_test_set`
 pins it. Found by a test that was trying to check something else.
 
 ### Finding I3: two duplicate measurements disagreed for an unstated reason
 
-All-zero feature rows are exact duplicates of one another and`torch.unique` counts them as
+All-zero feature rows are exact duplicates of one another and `torch.unique` counts them as
 such, but cosine similarity is undefined for a zero vector, so they can never appear among the
 near-duplicate pairs and were invisible to the straddling analysis. Rather than silently pick a
-convention,`DuplicateReport` now carries`zero_feature_nodes`, so the gap between the two
+convention, `DuplicateReport` now carries `zero_feature_nodes`, so the gap between the two
 counts is visible in the table rather than being an unexplained inconsistency.
 
 ### Finding I4: the neighbourhood-leakage comparison was invalid as first written
@@ -245,9 +245,9 @@ above rather than repeat it.
     make duplicate-definitions   # no training: which definition matches the quoted rates
     make tables                  # regenerate every table in this README from reports/
 
-Every table above is written by`make tables` from the committed artifacts in`reports/`, into
-the`<!--BEGIN:...-->` regions of this file. Nothing is typed in by hand. If a number here ever
-stops matching the artifacts,`make tables` produces a dirty git diff and says so.
+Every table above is written by `make tables` from the committed artifacts in `reports/`, into
+the `<!--BEGIN:...-->` regions of this file. Nothing is typed in by hand. If a number here ever
+stops matching the artifacts, `make tables` produces a dirty git diff and says so.
 
 ## 14. Licence
 

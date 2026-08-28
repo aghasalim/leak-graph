@@ -26,7 +26,7 @@ over those labels scores 21% there against a 19% majority baseline, versus 80%
 against 13% on Cora. An attempt to decompose inflation into a density term and a
 test-specific term mostly fails to resolve, and is reported as failing.
 
-**Contributions.** (i) One harness measuring duplicate, feature, label and
+**Contributions.** (i) One harness measuring duplicate, feature-label and
 neighbourhood-label leakage on the same splits with the same seeds. (ii) A
 headline metric, leakage inflation, comparable across datasets and models. (iii)
 Negative and density-matched controls, including a random split that reads zero.
@@ -54,7 +54,7 @@ The difference is computed **per seed and then averaged**, not as a difference o
 Initialisation noise is shared between the arms and cancels in the paired difference, which is
 what makes an effect of one accuracy point resolvable at all with ten seeds.
 
-> **Read the`resolved?` column as split-specific.** Every cell marked *yes* here
+> **Read the `resolved?` column as split-specific.** Every cell marked *yes* here
 > is on the shipped geom-gcn / Planetoid splits. Under ten random splits
 > ([below](#a-second-split-scheme)) **not one of the ten GNN cells resolves**, and the
 > two negative GCN readings become null. The controls read 0.0 ± 0.0 under both
@@ -62,8 +62,8 @@ what makes an effect of one accuracy point resolvable at all with ten seeds.
 
 
 `resolved?` asks whether the mean paired difference exceeds two standard errors of that same
-paired difference. Where it says **no**, I am not claiming an effect. A row reading`0.4 ± 1.1`
-with`no` means I measured nothing that ten seeds can distinguish from zero, and it is reported
+paired difference. Where it says **no**, I am not claiming an effect. A row reading `0.4 ± 1.1`
+with `no` means I measured nothing that ten seeds can distinguish from zero, and it is reported
 at the same size and in the same table as the rows that did resolve.
 
 ### What I actually found, including the parts that argue against the premise
@@ -110,12 +110,12 @@ accuracy. Mostly it is not.
   −1.0 ± 2.5 = −0.5 ± 2.9 + −0.5 ± 4.5; squirrel GCN −1.1 ± 0.9 = −0.5 ± 1.6 + −0.7 ± 2.2). The
   honest upgrade is from *not measurable* to *measured and null*, which is a smaller claim than
   it sounds like but a real one.
-- **All four control tables read exactly`0.00` in all 36 of their MLP and LabelProp cells**
+- **All four control tables read exactly `0.00` in all 36 of their MLP and LabelProp cells**
   total, density cost and test-specific alike. That is the only reason I trust the small numbers
   above, and it is the thing that was broken (see
   [Finding I1](#finding-i1-the-mlp-control-was-reporting-leakage-that-was-actually-a-dropout-rng-offset)).
 
-The honest summary is that`transductive − inductive` is a much weaker instrument than I assumed
+The honest summary is that `transductive − inductive` is a much weaker instrument than I assumed
 when I started building it. The density control showed that first; the second split scheme
 showed it again and harder, since under it not one GNN cell resolves anywhere. I have left the
 headline metric in place because it is what the literature's framing implies, and put both
@@ -130,7 +130,7 @@ component does not contradict their finding, and nothing here should be read as 
 **MLP and LabelProp are not results. They are the instrument's calibration.** Neither model can
 have a transductive/inductive gap: the MLP never reads the graph, and label propagation has no
 parameters and propagates the same training labels over the same full graph in both arms. Both
-must read exactly`0.0`. They do. When they did not, the harness was broken, see
+must read exactly `0.0`. They do. When they did not, the harness was broken, see
 [Finding I1](#finding-i1-the-mlp-control-was-reporting-leakage-that-was-actually-a-dropout-rng-offset).
 
 ## 3. What the number means
@@ -164,7 +164,7 @@ nodes' information, which is the effect I want to price, but it is also simply a
 sparser graph, and that costs accuracy on its own for reasons that have nothing to do with
 leakage.
 
-So I ran a third arm.`density_control` removes the same *number* of nodes from the inductive
+So I ran a third arm. `density_control` removes the same *number* of nodes from the inductive
 view, but draws them from the unlabelled pool, nodes the model was never going to be scored on, instead of the test set. That splits the headline gap in two:
 
     transductive − density_control  = the cost of a smaller, sparser training graph
@@ -208,7 +208,7 @@ of 2.8 and a test-specific component of −1.8.
 
 The MLP and LabelProp rows are the same calibration as in the headline table, extended to the
 third arm: neither model can react to which nodes were removed, so all three of their columns
-must read exactly`0.00`, and they do.
+must read exactly `0.00`, and they do.
 
 The control needs spare unlabelled nodes to remove. The Planetoid public splits leave most of
 the graph unlabelled, so it works there. The geom-gcn splits of chameleon and squirrel assign
@@ -414,8 +414,8 @@ than the null subsample did, so it gets more chances to clear the bar by luck, a
 should be read as an upper bound. Counts at fixed cutoffs of 0.95 and 0.99 are in
 `reports/detectors.json` so the sensitivity to that choice is visible.
 
-The`all-zero feature rows` column exists because of a real inconsistency. A node whose feature
-vector is entirely zero is an exact duplicate of every other such node, so`torch.unique` counts
+The `all-zero feature rows` column exists because of a real inconsistency. A node whose feature
+vector is entirely zero is an exact duplicate of every other such node, so `torch.unique` counts
 it, but cosine similarity is undefined for a zero vector, so it can never appear among the
 near-duplicate pairs and is invisible to the straddling analysis. Rather than let the two
 duplicate measurements disagree for an unstated reason, both are reported.
@@ -423,7 +423,7 @@ duplicate measurements disagree for an unstated reason, both are reported.
 ### Trying to reconcile the CiteSeer duplicate rate
 
 "Duplicate" is not one definition, so the disagreement might be a definitional difference
-rather than a conflict.`make duplicate-definitions` evaluates eighteen readings of it on all
+rather than a conflict. `make duplicate-definitions` evaluates eighteen readings of it on all
 five datasets: exact feature match counted four different ways, with and without labels, with
 and without the all-zero rows, near-duplicates at five cosine cutoffs and three Jaccard
 cutoffs, and duplication defined on the graph instead of the features.
@@ -470,8 +470,8 @@ exactly 5%, then read Cora at that same cutoff.
 of them put CiteSeer within a factor of 1.5 of Cora; the quote needs a factor of 5. The four
 that clear 1.5 all fail for their own reason. Two (`exact_but_conflicting_label`,
 `all_zero_feature_rows`) read exactly 0.00% on Cora, so their ratio is infinite while both
-absolute numbers sit far below the quoted pair.`identical_neighbour_set` reaches 2.28 but at
-7.75% and 17.64%, nowhere near 1% and 5%. And`exact_duplicate_pairs_over_nodes`, 0.81% Cora,
+absolute numbers sit far below the quoted pair. `identical_neighbour_set` reaches 2.28 but at
+7.75% and 17.64%, nowhere near 1% and 5%. And `exact_duplicate_pairs_over_nodes`, 0.81% Cora,
 3.46% CiteSeer, ratio 4.25, easily the closest, is an artefact twice over: it normalises a
 pair count by a node count, so it is not a percentage at all (chameleon reads 1197%), and
 CiteSeer's 15 all-zero feature rows are mutually identical and contribute 105 of its 115
@@ -482,7 +482,7 @@ puts CiteSeer at exactly 5% gives 0.8006, and Cora reads **3.95%** there, not 1%
 the same shape. Every cutoff that lifts CiteSeer to 5% lifts Cora with it.
 
 So the disagreement is not definitional in any way I could construct. Zou et al. either
-measured on a different artifact of CiteSeer than the one`torch_geometric` ships, the raw
+measured on a different artifact of CiteSeer than the one `torch_geometric` ships, the raw
 corpus rather than the bag-of-words matrix is the obvious candidate, and CiteSeer's raw
 corpus is known to contain duplicate documents, or measured something other than feature
 rows entirely. I could not retrieve the section of the primary source that would say which.
@@ -503,17 +503,17 @@ How much of the label is already in a node's own features, with no graph at all.
 | squirrel | 35.4 | 19.3 | 4 / 2089 | 0.2 | 1.3% |
 <!--END:features-->
 
-The striking column is`giveaway features`: **3 of Cora's 1,433 features and 0 of CiteSeer's
+The striking column is `giveaway features`: **3 of Cora's 1,433 features and 0 of CiteSeer's
 3,703**, against a label-permuted null of essentially zero. By this definition, a single feature
 whose presence pins the label down with 95% purity and at least 5 training nodes' support
-CiteSeer has no feature, label leakage at all. That sits oddly beside the "62% leakage rate"
+CiteSeer has no feature-label leakage at all. That sits oddly beside the "62% leakage rate"
 quoted for CiteSeer, and is the clearest evidence that the quoted figure measures something
 other than what I measure here. PubMed is the opposite case: 9 giveaway features covering half
 the test set, on only 500 features.
 
 `logistic regression on features alone` is the ceiling: whatever a GNN scores, the part below
 this line was never graph learning. Note that on **PubMed the MLP reaches 72.5% against the
-GCN's 78.3%**, so most of PubMed's headline accuracy is available without the graph at all.`giveaway features` is the mechanism, individual feature
+GCN's 78.3%**, so most of PubMed's headline accuracy is available without the graph at all. `giveaway features` is the mechanism, individual feature
 dimensions (single vocabulary words, for the citation datasets) whose mere presence pins the
 label down. Purity is measured on the training set only and then applied to test nodes, so it is
 leakage that actually transfers rather than an in-sample artefact, and the count is compared
@@ -535,7 +535,7 @@ not influence anyone else's representation, but it is not provable, it breaks th
 model uses any node-set-level statistic (BatchNorm over all nodes, a global readout, degree
 normalisation over the full index), and it cannot be tested by construction.
 
-So`induced_subgraph` physically removes the nodes and relabels the survivors to`0..k-1`. The
+So `induced_subgraph` physically removes the nodes and relabels the survivors to `0..k-1`. The
 test nodes do not exist during training. They are re-attached, with all their edges, only at
 inference, exactly as an unseen node would arrive in deployment.
 
@@ -552,7 +552,7 @@ scored on a graph containing test nodes until inference and model selection cann
 
 `make test` runs the suite. It builds a synthetic planted-partition graph in process, touches no
 network and downloads nothing, which is what lets CI run it. CI additionally asserts that the
-test run left`data/` empty.
+test run left `data/` empty.
 
 ## 8. Instrument bugs
 
@@ -562,7 +562,7 @@ has checked.
 
 ### Finding I1: the MLP control was reporting leakage that was actually a dropout RNG offset
 
-The MLP cannot have a transductive/inductive gap. It never reads`edge_index`, and the inductive
+The MLP cannot have a transductive/inductive gap. It never reads `edge_index`, and the inductive
 view leaves every training node's features untouched, so the two arms are the same computation.
 It was nevertheless reporting a non-zero one.
 
@@ -584,24 +584,24 @@ repository measures on Cora, and on individual seeds it was several times larger
 control not been there, I would have reported a fabricated effect at roughly the size of the
 genuine one.
 
-Fix:`uses_graph = False` on graph-free models, and the harness runs them on the masked rows
+Fix: `uses_graph = False` on graph-free models, and the harness runs them on the masked rows
 only, so the dropout draw cannot depend on how many other nodes happen to be in the view. The
-control now reads exactly`0.0`, and`test_mlp_has_exactly_zero_inflation` asserts it.
+control now reads exactly `0.0`, and `test_mlp_has_exactly_zero_inflation` asserts it.
 
-### Finding I2:`random_split` silently produced an empty test set
+### Finding I2: `random_split` silently produced an empty test set
 
 Asking the Planetoid defaults (500 val, 1000 test) of a graph too small to supply them made the
-test slice come out empty. Every downstream accuracy then became`NaN`, reproducibly, and with
-no error. A metric that is silently`NaN` is worse than a crash, because it looks like a result.
-`random_split` now raises, and`test_random_split_refuses_to_silently_produce_an_empty_test_set`
+test slice come out empty. Every downstream accuracy then became `NaN`, reproducibly, and with
+no error. A metric that is silently `NaN` is worse than a crash, because it looks like a result.
+`random_split` now raises, and `test_random_split_refuses_to_silently_produce_an_empty_test_set`
 pins it. Found by a test that was trying to check something else.
 
 ### Finding I3: two duplicate measurements disagreed for an unstated reason
 
-All-zero feature rows are exact duplicates of one another and`torch.unique` counts them as
+All-zero feature rows are exact duplicates of one another and `torch.unique` counts them as
 such, but cosine similarity is undefined for a zero vector, so they can never appear among the
 near-duplicate pairs and were invisible to the straddling analysis. Rather than silently pick a
-convention,`DuplicateReport` now carries`zero_feature_nodes`, so the gap between the two
+convention, `DuplicateReport` now carries `zero_feature_nodes`, so the gap between the two
 counts is visible in the table rather than being an unexplained inconsistency.
 
 ### Finding I4: the neighbourhood-leakage comparison was invalid as first written
@@ -612,8 +612,8 @@ that subset against a GCN's accuracy on the *whole* test set is not a comparison
 different questions with one label. The harness now also records GNN accuracy restricted to
 exactly the covered subset, which is the last column of the baselines table.
 
-The pre-fix numbers in`reports/instrument_bug_mlp_rng.json` cannot be reproduced by the code in
-this repository, and that is deliberate: the current harness returns exactly`0.0`, which is the
+The pre-fix numbers in `reports/instrument_bug_mlp_rng.json` cannot be reproduced by the code in
+this repository, and that is deliberate: the current harness returns exactly `0.0`, which is the
 whole point of the fix. The artifact is committed as the record of the measurement.
 
 ## 9. Limitations
@@ -653,9 +653,9 @@ whole point of the fix. The artifact is committed as the record of the measureme
   pool of its own. See [above](#recovering-the-control-where-the-split-leaves-no-pool). What
   remains unmeasurable there is a *resolved* decomposition: the components are constructible
   but almost none of them clear two standard errors at ten seeds.
-- **A reproduction of the 42%/62% feature, label figures.** Those papers report "42% of nodes
+- **A reproduction of the 42%/62% feature-label figures.** Those papers report "42% of nodes
   leak information between features and labels" for Cora without, in what I read, defining the
-  measurement. My feature, label detector reports related quantities (logistic-regression
+  measurement. My feature-label detector reports related quantities (logistic-regression
   accuracy, giveaway feature counts) but they are not the same statistic, so the numbers here
   neither confirm nor contradict theirs. My giveaway count on CiteSeer is zero; theirs is 62%
   of nodes. Those two things can both be true of different definitions.
@@ -666,7 +666,7 @@ whole point of the fix. The artifact is committed as the record of the measureme
   retrieve the section of the primary source that would say what they counted, so I cannot
   identify the definition that *would* work, only rule out eighteen that do not.
 - **Exact duplicate counts from the primary source.** I verified that Zou et al. claim
-  duplicates and feature, label leaks in Cora and CiteSeer, and I verified OGB's quotation of
+  duplicates and feature-label leaks in Cora and CiteSeer, and I verified OGB's quotation of
   their percentages verbatim, but I could not retrieve the section of Zou et al. containing the
   per-dataset numbers themselves. The duplicate counts in this README are my own measurements.
 - **Anything about node ordering or dataset provenance.** This kit takes the datasets as
@@ -723,7 +723,7 @@ what makes an effect of one accuracy point resolvable at all with ten seeds.
 | squirrel | LabelProp | 17.8 ± 1.3 | 17.8 ± 1.3 | **0.0 ± 0.0** | **no** |
 <!--END:inflation-->
 
-> **Read the`resolved?` column as split-specific.** Every cell marked *yes* here
+> **Read the `resolved?` column as split-specific.** Every cell marked *yes* here
 > is on the shipped geom-gcn / Planetoid splits. Under ten random splits
 > ([below](#a-second-split-scheme)) **not one of the ten GNN cells resolves**, and the
 > two negative GCN readings become null. The controls read 0.0 ± 0.0 under both
@@ -731,8 +731,8 @@ what makes an effect of one accuracy point resolvable at all with ten seeds.
 
 
 `resolved?` asks whether the mean paired difference exceeds two standard errors of that same
-paired difference. Where it says **no**, I am not claiming an effect. A row reading`0.4 ± 1.1`
-with`no` means I measured nothing that ten seeds can distinguish from zero, and it is reported
+paired difference. Where it says **no**, I am not claiming an effect. A row reading `0.4 ± 1.1`
+with `no` means I measured nothing that ten seeds can distinguish from zero, and it is reported
 at the same size and in the same table as the rows that did resolve.
 
 
@@ -751,7 +751,7 @@ nodes' information, which is the effect I want to price, but it is also simply a
 sparser graph, and that costs accuracy on its own for reasons that have nothing to do with
 leakage.
 
-So I ran a third arm.`density_control` removes the same *number* of nodes from the inductive
+So I ran a third arm. `density_control` removes the same *number* of nodes from the inductive
 view, but draws them from the unlabelled pool, nodes the model was never going to be scored on, instead of the test set. That splits the headline gap in two:
 
     transductive − density_control  = the cost of a smaller, sparser training graph
@@ -795,7 +795,7 @@ of 2.8 and a test-specific component of −1.8.
 
 The MLP and LabelProp rows are the same calibration as in the headline table, extended to the
 third arm: neither model can react to which nodes were removed, so all three of their columns
-must read exactly`0.00`, and they do.
+must read exactly `0.00`, and they do.
 
 The control needs spare unlabelled nodes to remove. The Planetoid public splits leave most of
 the graph unlabelled, so it works there. The geom-gcn splits of chameleon and squirrel assign
