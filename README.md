@@ -50,6 +50,9 @@ citing them.
 
 ## 2. The headline number
 Inflation is real on the homophilous citation graphs and small: 1.5 accuracy points at most, on Cora with GraphSAGE.
+On the heterophilous pair the sign flips, and GCN *loses* 2.5 points on chameleon and 1.2 on squirrel by training on
+a graph that already contains the test nodes. MLP and LabelProp read exactly 0.0 in every cell, which is the
+instrument check and not a finding, since neither model can tell the two arms apart.
 
 ![leakage inflation by dataset and model](reports/figures/leakage-inflation.png)
 
@@ -59,35 +62,62 @@ Inflation is real on the homophilous citation graphs and small: 1.5 accuracy poi
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#2-the-headline-number).
 ### What I actually found, including the parts that argue against the premise
-I built this expecting transductive evaluation to be buying the GNNs a visible amount of accuracy.
+I built this expecting transductive evaluation to be buying the GNNs a visible amount of accuracy. Mostly it is not.
+Only five of the ten GNN cells resolve at two standard errors, and no resolved reading exceeds 2.5 accuracy points in
+either direction. PubMed shows nothing at all for either GNN, 0.3 and 0.1 points, and re-running everything on ten
+random splits leaves not one of the ten cells resolved.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#what-i-actually-found-including-the-parts-that-argue-against-the-premise).
 ## 3. What the number means
-An accuracy gap on its own is uninterpretable.
+An accuracy gap on its own is uninterpretable. Two baselines bound it. On Cora an MLP that never touches the graph
+already scores 56.9% against the inductive GCN's 80.3%, so most of that accuracy was never graph learning. A majority
+vote over a test node's training-set neighbours, with no features and no training at all, scores 79.6% on the 21% of
+Cora test nodes that have such a neighbour, and the GCN scores 86.1% on that same subset.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#3-what-the-number-means).
 ## 4. Is the gap actually leakage?
 The random split is the negative control: it has no temporal or structural reason to leak, so a non-zero reading there would be a fault in the harness rather than a finding.
+Nothing in it resolves. The stronger check is a third arm that removes the same *number* of nodes from the unlabelled
+pool instead of the test set, splitting the gap into the cost of a smaller training graph and the part specific to the
+test nodes. For GraphSAGE the smaller-graph term alone is 2.4 points on Cora and 2.8 on CiteSeer, both larger than the
+total inflation, so almost none of that gap is leakage. Cora GCN is the one cell where inflation survives the control
+roughly intact: 1.0 point total, 0.1 of it density, and a resolved test-specific 1.0.
 
 ![the same measurement under three conditions](reports/figures/controls.png)
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#4-is-the-gap-actually-leakage).
 ### Recovering the control where the split leaves no pool
-A pool of unlabelled nodes can be manufactured out of the test set itself.
+A pool of unlabelled nodes can be manufactured out of the test set itself. Reserve half of it: those nodes keep their
+features and edges, their labels are never used, and they are never scored. That makes the decomposition constructible
+on chameleon and squirrel, where the geom-gcn splits label every node and leave no pool at all. Neither component
+resolves on either dataset, chameleon GCN reading -0.5 density and -0.5 test-specific and squirrel GCN -0.5 and -0.7,
+so the answer is that ten seeds on a halved test set cannot tell.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#recovering-the-control-where-the-split-leaves-no-pool).
 ### A second split scheme
-The other route is to stop using the shipped splits.
+The other route is to stop using the shipped splits. Ten random Planetoid-style splits per dataset, 20 labels per
+class, leave an unlabelled pool everywhere, chameleon and squirrel included. Under them not one of the ten GNN
+inflation cells resolves, and the two negative GCN readings vanish: chameleon moves from -2.5 to 0.0 and squirrel from
+-1.2 to 0.2. The error bars are roughly double the headline table's, because these include the split variance that a
+single public split cannot show.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#a-second-split-scheme).
 ## 5. Decomposing by duplicates
 Adding test nodes does two things at once: it makes the graph denser, helping any node, and it exposes the test nodes' own neighbourhoods.
+Scoring only test nodes with no near-duplicate twin in training moves inflation by at most 0.8 points anywhere,
+squirrel included, and squirrel has 1,580 straddling pairs. Duplicates are abundant; what they contribute to *this*
+gap is small. The density half of the split is not clean either, with seven of its twelve GNN components clearing two
+standard errors and the test-specific term coming out negative in three of the six cells.
 
 ![inflation split into a density term and a test-specific term](reports/figures/inflation-decomposition.png)
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#5-decomposing-by-duplicates).
 ## 6. The detectors
-"Duplicate node" has no single meaning, and the choice dominates the answer.
+"Duplicate node" has no single meaning, and the choice dominates the answer. PubMed is 0.04% duplicated under exact
+feature match and 44.6% duplicated under identical neighbour set, so any headline duplicate figure is a threshold
+decision before it is a measurement. The detectors also pull exposure apart from leakage. Squirrel exposes 40% of its
+test nodes to a labelled training neighbour against Cora's 21% and still inflates less, because a vote over those
+labels scores 21% there against a 19% majority baseline, where the same vote on Cora scores 80% against 13%.
 
 ![duplicate rate under sixteen definitions](reports/figures/duplicate-definitions.png)
 ![test-set exposure and what it is worth](reports/figures/leakage-channels.png)
@@ -104,15 +134,29 @@ Full detail in [notes/METHODS.md](notes/METHODS.md#6-the-detectors).
 | chameleon | 2277 | 375 (16.5%) | 233 | 3395 | 0.378 | 683 | 128 / 456 (28.1%) |
 | squirrel | 5201 | 265 (5.1%) | 165 | 7348 | 0.354 | 1580 | 377 / 1041 (36.2%) |
 
-<!--END:duplicates--> Two of these line up with the literature and one does not.
+<!--END:duplicates-->
+
+Two of these line up with the literature and one does not. My 1.0% exact duplicate nodes on Cora matches the 1% that
+OGB quotes from Zou et al., and 16.5% on chameleon with 5.1% on squirrel is the heavy duplication Platonov et al.
+report for exactly those two. CiteSeer is the one that does not: I measure 1.1% against the 5% quoted in the same
+sentence as Cora's 1%. Note also how weakly duplicate abundance predicts leakage, since squirrel has the worst
+straddling counts in the table and its GCN inflation is negative.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#duplicate-and-near-duplicate-nodes).
 ### Trying to reconcile the CiteSeer duplicate rate
 "Duplicate" is not one definition, so the disagreement might be a definitional difference rather than a conflict. `make duplicate-definitions` evaluates eighteen readings of it on all five datasets: exact feature match counted four different ways, with and without labels, with and without the all-zero rows, near-duplicates at five cosine cutoffs and three Jaccard cutoffs, and duplication defined on the graph instead of the features.
+None of the eighteen reproduces both quoted figures, and the threshold is not the reason. Fourteen of them put
+CiteSeer within a factor of 1.5 of Cora, where the quote needs a factor of 5, and solving directly for the cosine
+cutoff that puts CiteSeer at exactly 5% gives 0.8006, at which Cora reads 3.95% rather than 1%. My CiteSeer number
+is 1.05% and the disagreement stands unresolved rather than explained away.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#trying-to-reconcile-the-citeseer-duplicate-rate).
 ### Feature, label leakage
-How much of the label is already in a node's own features, with no graph at all.
+How much of the label is already in a node's own features, with no graph at all. Logistic regression on features
+alone reaches 57.6% on Cora against a 13.0% majority class, and 72.9% on PubMed against 18.0%. The sharper statistic
+is giveaway features, single dimensions whose presence pins the label down: Cora has 3 of 1,433 and CiteSeer has 0 of
+3,703, against a label-permuted null of essentially zero. PubMed is the opposite case, 9 of its 500 features covering
+half the test set, and CiteSeer having none at all sits oddly beside the 62% leakage rate quoted for it.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#feature-label-leakage).
 ### Neighbourhood label leakage
@@ -123,16 +167,25 @@ Full output, including coverage and the accuracy restricted to covered nodes, is
 
 ## 7. The inductive split is the thing that has to be right
 Everything above is worthless if the inductive split is not actually inductive, and it is easy to get subtly wrong.
+So `induced_subgraph` physically removes the test nodes and relabels the survivors, rather than keeping their feature
+rows and merely dropping their edges. The property is asserted as an experiment: one test overwrites every test node's
+features with noise at 100x scale and requires the inductive training loss to come out bit-identical while the
+transductive one moves, and a second does the same by rewiring every test-node edge endpoint. Both sit in the 36-test
+suite, which builds a synthetic graph in process and downloads nothing.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#7-the-inductive-split-is-the-thing-that-has-to-be-right).
 ## 8. Instrument bugs
 
-Both of these were found by the controls, not by inspection. They are recorded here rather than
+All four of these were found by the controls or the tests, not by inspection. They are recorded here rather than
 quietly patched, because a harness that has never been caught being wrong is a harness nobody
 has checked.
 
 ### Finding I1: the MLP control was reporting leakage that was actually a dropout RNG offset
-The MLP cannot have a transductive/inductive gap.
+The MLP cannot have a transductive/inductive gap. It was reporting one anyway, because dropout drew its mask at the
+view's shape and the inductive view has fewer rows, so the two arms consumed the RNG stream differently. Over ten
+seeds that spurious gap averaged 0.89 points on Cora and 0.69 on CiteSeer, and reached 3.9 points on a single seed,
+which is the size of the real Cora inflation this repository measures. Graph-free models now run on the masked rows
+only, and the control reads exactly 0.0.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#finding-i1-the-mlp-control-was-reporting-leakage-that-was-actually-a-dropout-rng-offset).
 ### Finding I2: `random_split` silently produced an empty test set
@@ -152,7 +205,10 @@ convention, `DuplicateReport` now carries `zero_feature_nodes`, so the gap betwe
 counts is visible in the table rather than being an unexplained inconsistency.
 
 ### Finding I4: the neighbourhood-leakage comparison was invalid as first written
-The neighbour vote can only predict test nodes that have at least one training-set neighbour.
+The neighbour vote can only predict test nodes that have at least one training-set neighbour. On Cora's public split
+that is 21% of the test set. Scoring the vote on that subset and the GCN on the whole test set is two different
+questions wearing one label. The harness now also records GNN accuracy restricted to the covered subset, which on Cora
+is 86.1% against the 80.3% the same model scores on the full test set.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#finding-i4-the-neighbourhood-leakage-comparison-was-invalid-as-first-written).
 ## 9. Limitations
@@ -187,6 +243,13 @@ Full detail in [notes/METHODS.md](notes/METHODS.md#finding-i4-the-neighbourhood-
 
 ## 10. What I could not measure
 - ~~**The density control on chameleon and squirrel.**~~ Now measured, two ways, by reserving half the test set as the removal pool, and again under a second split scheme that leaves a pool of its own.
+- **A *resolved* decomposition on those two.** The components are constructible now, but at ten seeds on a halved test
+  set almost none of them clears two standard errors.
+- **Why my CiteSeer duplicate rate disagrees with the quoted 5%.** I measure 1.05%, eighteen definitions were tried
+  and none reproduces the quoted Cora/CiteSeer pair, and I could not retrieve the section of the primary source that
+  would say what they counted.
+- **A reproduction of the 42%/62% feature-label figures.** My detector reports related quantities rather than the same
+  statistic, so the numbers here neither confirm nor contradict theirs.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#10-what-i-could-not-measure).
 ## 11. Prior work
