@@ -229,6 +229,9 @@ def splice(text: str, name: str, body: str) -> str:
     return f"{head}{begin}\n\n{body}\n\n{end}{tail}"
 
 
+CHECK = "--check" in sys.argv[1:]
+
+
 def main() -> None:
     df = pd.read_csv(REPORTS / "inflation.csv")
     det = json.loads((REPORTS / "detectors.json").read_text())
@@ -273,6 +276,19 @@ def main() -> None:
                 written[name] += 1
             text = splice(text, name, body)
         if text != original:
+            if CHECK:
+                cur, want = original.split("\n"), text.split("\n")
+                for i in range(max(len(cur), len(want))):
+                    a = cur[i] if i < len(cur) else "<end of file>"
+                    b = want[i] if i < len(want) else "<end of file>"
+                    if a != b:
+                        raise SystemExit(
+                            f"{doc.name} has drifted from make_tables.py at line {i + 1}.\n"
+                            f"  committed: {a}\n  generated: {b}\n"
+                            "Run `make tables` and commit the result. The tables "
+                            "between the markers are generated, so editing them by "
+                            "hand is undone by the next run."
+                        )
             doc.write_text(text)
             print(f"<!-- spliced into {doc.name} -->", file=sys.stderr)
     missing = [n for n, c in written.items() if c == 0]
