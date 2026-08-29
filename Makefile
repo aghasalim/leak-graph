@@ -1,7 +1,7 @@
 PY ?= .venv/bin/python
 PIP ?= .venv/bin/pip
 
-.PHONY: venv install test audit audit-quick detectors control control-bisected \
+.PHONY: venv install test audit audit-quick detectors control control-bisected \ tables-check
 	control-random-splits duplicate-definitions tables figures clean
 
 venv:
@@ -57,3 +57,6 @@ figures:
 
 clean:
 	rm -rf reports/*.csv reports/*.json .pytest_cache **/__pycache__
+
+tables-check:  ## fail if the generated tables no longer match the CSVs
+	$(PY) experiments/make_tables.py --check

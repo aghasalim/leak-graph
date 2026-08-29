@@ -30,3 +30,7 @@ jobs:
           if [ -d data ] && [ -n "$(ls -A data 2>/dev/null)" ]; then
             echo "tests populated data/, a test is downloading a real dataset"; exit 1
           fi
+
+      # These docs are generated. This fails if someone edits them by hand.
+      - name: Generated docs still match
+        run: python experiments/make_tables.py --check
