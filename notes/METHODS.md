@@ -625,10 +625,10 @@ inference, exactly as an unseen node would arrive in deployment.
 
 That property is asserted as an experiment rather than a claim about shapes:
 
--`test_inductive_training_is_blind_to_test_features` overwrites every test node's features with
+- `test_inductive_training_is_blind_to_test_features` overwrites every test node's features with
   noise at 100x scale and asserts the inductive training loss is **bit-identical**, while the
   transductive loss moves.
--`test_inductive_training_is_blind_to_test_edges` rewires every test-node edge endpoint to a
+- `test_inductive_training_is_blind_to_test_edges` rewires every test-node edge endpoint to a
   different random test node and asserts the same.
 
 Validation also happens inside the training view, so in the inductive arm the model is never
