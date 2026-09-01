@@ -35,3 +35,60 @@ jobs:
       # These docs are generated. This fails if someone edits them by hand.
       - name: Generated docs still match
         run: python experiments/make_tables.py --check
+
+      # The README quotes the size of this suite in three places. It had drifted
+      # once already, so the number is now read off the collector.
+      - name: The README still quotes the right number of tests
+        run: |
+          n=$(python -m pytest tests -q --collect-only 2>/dev/null | grep -oE '^[0-9]+ tests? collected' | grep -oE '^[0-9]+')
+          if [ -z "$n" ]; then echo "could not read the collected test count"; exit 1; fi
+          if ! grep -q "$n tests, synthetic graph only" README.md; then
+            echo "pytest collects $n tests, README.md says something else"
+            grep -n "tests, synthetic graph only" README.md || true
+            exit 1
+          fi
+          echo "pytest collects $n tests and the README says so"
+
+  # Every number this repository publishes is recomputed here by implementations
+  # that share no code with the Python that produced it, and CI fails if any two
+  # disagree. See the "Everything here is recomputed" section of the README.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install R if the runner does not already have it
+        run: |
+          command -v Rscript || sudo apt-get install -y --no-install-recommends r-base-core
+      - name: Show what is available
+        run: |
+          for t in sqlite3 cc go Rscript cargo node ruby java; do
+            printf '%-8s %s\n' "$t" "$(command -v $t || echo MISSING)"
+          done
+      - name: Recompute everything
+        run: ./verify/verify.sh
+
+      # A check that cannot fail is checking nothing. This corrupts one number in
+      # the rawest results file and requires the suite to reject it, then puts it
+      # back and requires the suite to pass again.
+      - name: The suite rejects a corrupted results file
+        run: |
+          cp reports/runs.csv /tmp/runs.csv.orig
+          sed -i '2s/0\.8140000104904175/0.8940000104904175/' reports/runs.csv
+          if cmp -s /tmp/runs.csv.orig reports/runs.csv; then
+            echo "the corruption did not change the file, the self test is not testing anything"
+            exit 1
+          fi
+          if ./verify/verify.sh > /tmp/corrupt.log 2>&1; then
+            echo "FAIL: the suite passed on a corrupted reports/runs.csv"
+            cat /tmp/corrupt.log
+            exit 1
+          fi
+          echo "rejected, as it should be:"
+          grep -E "passed, .* failed" /tmp/corrupt.log
+          cp /tmp/runs.csv.orig reports/runs.csv
+          git diff --quiet -- reports/runs.csv || { echo "restore failed"; exit 1; }
+          ./verify/verify.sh
