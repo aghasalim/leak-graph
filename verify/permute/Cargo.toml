@@ -1,0 +1,11 @@
+[package]
+name = "permute-check"
+version = "0.1.0"
+edition = "2021"
+
+# No dependencies on purpose. CI fetches nothing, and the CSV reading here is a
+# split on commas over files this repository writes itself.
+[dependencies]
+
+[profile.release]
+opt-level = 3

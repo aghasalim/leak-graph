@@ -1,8 +1,8 @@
 PY ?= .venv/bin/python
 PIP ?= .venv/bin/pip
 
-.PHONY: venv install test audit audit-quick detectors control control-bisected \ tables-check
-	control-random-splits duplicate-definitions tables figures clean
+.PHONY: venv install test audit audit-quick detectors control control-bisected verify \
+	control-random-splits duplicate-definitions tables tables-check figures clean
 
 venv:
 	/Users/salim/.local/bin/python3.12 -m venv .venv || python3.12 -m venv .venv
@@ -60,3 +60,8 @@ clean:
 
 tables-check:  ## fail if the generated tables no longer match the CSVs
 	$(PY) experiments/make_tables.py --check
+
+# Recompute every published number in the other languages installed. Skips any
+# whose toolchain is absent, and exits non-zero if any two disagree.
+verify:
+	./verify/verify.sh
