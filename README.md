@@ -295,7 +295,7 @@ above rather than repeat it.
       make_tables.py                renders every table in this README from reports/
     tests/           48 tests, synthetic graph only, no network
     reports/         committed result artifacts
-    verify/          the same numbers recomputed in eight other languages
+    verify/          the same numbers, recomputed independently
 
 ## 13. Reproducing
 
@@ -308,64 +308,13 @@ above rather than repeat it.
     make control-random-splits   # a second split scheme, with its own control
     make duplicate-definitions   # no training: which definition matches the quoted rates
     make tables                  # regenerate every table in this README from reports/
-    make verify                  # recompute every published number in eight other languages
+    make verify                  # recompute every published number independently
 
 Every table above is written by `make tables` from the committed artifacts in `reports/`, into
 the `<!--BEGIN:...-->` regions of this file. Nothing is typed in by hand. If a number here ever
-stops matching the artifacts, `make tables` produces a dirty git diff and says so.
-
-### Everything here is recomputed
-
-`make tables` checks that the tables match the artifacts. It cannot check that the artifacts
-are right, because it is the same code that produced them. Every number in this repository
-went through one implementation: `summarise()` in `experiments/run_audit.py` aggregates the
-per-run rows, `make_tables.py` renders that aggregation, and I typed the figures in the prose
-by reading the rendered table. A mistake anywhere in that chain would be copied consistently
-into the summary, the figures, the tables and the text, and every check I had would agree with
-it, because every check read the same output.
-
-So `verify/` recomputes it from the rawest file in the repository, in languages that share no
-code with the Python and no code with each other. `./verify/verify.sh` runs all of them and
-exits non-zero if any two disagree. CI runs it, then corrupts one accuracy in
-`reports/runs.csv` and requires the suite to reject it, then restores the file and requires it
-to pass again.
-
-| language | recomputes | from | measured agreement |
-|---|---|---|---|
-| SQL | all 956 statistics in the four summary tables | the four `*_runs.csv` | worst disagreement 6.6e-15 |
-| C | all 20 rows of `inflation.csv`, 13 statistics and the resolution flag each | `runs.csv` | agrees on every one, tolerance 1e-12 |
-| Go | the 52 rows of the three control tables, plus structure of 9 CSV and 3 JSON files and the four run grids | the three control `*_runs.csv` | agrees on every one, tolerance 1e-12 |
-| R | the resolution rule against a paired t test, and a 20,000 draw percentile bootstrap of each resolved cell | all four raw/summary pairs | 173 of 176 components agree with the t test; all 20 resolved cells have a 90% interval on one side of zero |
-| Rust | the exact sign flip test, all 1,024 assignments per component, 180,224 in total | all four raw/summary pairs | 173 of 176 agree; 17 components reach p <= 0.05 against 8.8 expected by chance, exact binomial tail 7.5e-3 |
-| JavaScript | the 10 generated table regions in `README.md` and `notes/METHODS.md` | the summary CSVs and JSON | byte identical |
-| Ruby | the 29 figures typed by hand into the README prose | the summary CSVs and JSON | every sentence still says what the artifacts say |
-| Java | the four experiment files are the protocols described: 240 shared runs, 1,860 cross arm accuracies, 99 LabelProp groups, 1,960 epoch counts | the four `*_runs.csv` | identical to the last digit, by string comparison |
-
-The division of labour matters more than the count. Nobody needs the same aggregation written
-eight times, so each language checks a link the others do not: SQL and C the aggregation, Go
-the file structure, R and Rust the inference, JavaScript the rendering, Ruby the prose, Java
-the claim that the four experiments are the experiments described. Corrupting one thing at a
-time confirms they are not redundant: hand editing one cell of a generated table is caught only
-by the JavaScript, changing one figure in a README sentence only by the Ruby, and giving
-LabelProp a non-zero epoch count only by the Java.
-
-Three things came out of writing it.
-
-- The two standard error rule is not doing anything an exact test would not do, which I had
-  assumed rather than checked. Over all 176 published components it agrees with an exhaustive
-  sign flip test on 173. The three it does not agree on are all test-specific components
-  the rule calls resolved and the exact test puts at p between 0.070 and 0.075:
-  `density_control` PubMed/GraphSAGE, `random_split_control` CiteSeer/GCN and
-  `random_split_control` chameleon/GraphSAGE. They are named in the output rather than counted
-  against a threshold: searching over random ten value vectors, the largest p I could get the
-  rule to produce at ten seeds was 100/1024, so a threshold anywhere near it would be testing
-  arithmetic rather than testing these files.
-- One resolved component sits on the boundary under a bootstrap that assumes no shape at all.
-  `random_split_control` CiteSeer/GCN test-specific has a 95% percentile interval whose lower
-  bound is within 0.0002 of zero, so at 95% the answer moves with the bootstrap seed. That is
-  why the R check requires the 90% interval and reports the closest call.
-- The README said the suite had 36 tests, in three places. `pytest` collects 48. The count is
-  now read off the collector in CI instead of being typed in.
+stops matching the artifacts, `make tables` produces a dirty git diff and says so. The artifacts
+themselves are recomputed from the raw run files by independent implementations in `verify/`,
+and CI fails the build if any of them disagree.
 
 ## 14. Licence
 
