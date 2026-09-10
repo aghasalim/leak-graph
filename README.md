@@ -295,7 +295,7 @@ above rather than repeat it.
       make_tables.py                renders every table in this README from reports/
     tests/           48 tests, synthetic graph only, no network
     reports/         committed result artifacts
-    verify/          the same numbers, recomputed independently
+    verify/          independent recomputation, one language per check
 
 ## 13. Reproducing
 
@@ -313,8 +313,8 @@ above rather than repeat it.
 Every table above is written by `make tables` from the committed artifacts in `reports/`, into
 the `<!--BEGIN:...-->` regions of this file. Nothing is typed in by hand. If a number here ever
 stops matching the artifacts, `make tables` produces a dirty git diff and says so. The artifacts
-themselves are recomputed from the raw run files by independent implementations in `verify/`,
-and CI fails the build if any of them disagree.
+themselves are recomputed from the raw run files by parallel implementations in `verify/`,
+one language per check, and a disagreement between any two of them breaks CI.
 
 ## 14. Licence
 
