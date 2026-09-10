@@ -293,7 +293,7 @@ above rather than repeat it.
       run_density_control.py        the third arm; --bisect and --random-splits
       run_duplicate_definitions.py  eighteen readings of "duplicate", against the quotes
       make_tables.py                renders every table in this README from reports/
-    tests/           48 tests, synthetic graph only, no network
+    tests/           36 tests, synthetic graph only, no network
     reports/         committed result artifacts
     verify/          independent recomputation, one language per check
 
