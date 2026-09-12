@@ -71,7 +71,7 @@ jobs:
       - name: Recompute everything
         run: ./verify/verify.sh
 
-      # A check that cannot fail is checking nothing. This corrupts one number in
+      # A check that cannot fail is not a check. This corrupts one number in
       # the rawest results file and requires the suite to reject it, then puts it
       # back and requires the suite to pass again.
       - name: The suite rejects a corrupted results file
