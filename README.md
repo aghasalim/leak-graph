@@ -172,8 +172,7 @@ suite, which builds a synthetic graph in process and downloads nothing.
 Full detail in [notes/METHODS.md](notes/METHODS.md#7-the-inductive-split-is-the-thing-that-has-to-be-right).
 ## 8. Instrument bugs
 
-All four of these were found by the controls or the tests, not by inspection. They are recorded here, not
-quietly patched, because a harness that has never been caught being wrong is a harness nobody
+All four of these were found by the controls or the tests. They are recorded here because a harness that has never been caught being wrong is a harness nobody
 has checked.
 
 ### Finding I1: the MLP control was reporting leakage that was actually a dropout RNG offset
@@ -207,7 +206,7 @@ is 86.1% against the 80.3% the same model scores on the full test set.
 Full detail in [notes/METHODS.md](notes/METHODS.md#finding-i4-the-neighbourhood-leakage-comparison-was-invalid-as-first-written).
 ## 9. Limitations
 
-- **Hyperparameters are fixed, not tuned.** One setting (2 layers, hidden 64, dropout 0.5, Adam
+- **Hyperparameters are fixed.** One setting (2 layers, hidden 64, dropout 0.5, Adam
   at lr 0.01 and weight decay 5e-4, up to 300 epochs, best-validation checkpoint) is used for
   every dataset, model and regime. Absolute accuracies are therefore below published numbers,
   especially on chameleon and squirrel where these homophily-oriented defaults are a poor fit.
