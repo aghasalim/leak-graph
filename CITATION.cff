@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: If you use this work, please cite it as below.
+title: "LeakGraph"
+abstract: "Audit kit that measures how much reported GNN node-classification accuracy comes from transductive leakage and duplicate nodes, with a density control that shows most of it does not"
+type: software
+authors:
+  - family-names: Mustafazada
+    given-names: Aghasalim
+    orcid: "https://orcid.org/0009-0001-8746-4582"
+    affiliation: "Howest University of Applied Sciences"
+repository-code: "https://github.com/aghasalim/leak-graph"
+url: "https://aghasalim.github.io/"
+license: MIT
+keywords:
+  - data leakage
+  - graph neural networks
+  - machine learning
+  - model evaluation
+  - node classification
+  - pytorch
