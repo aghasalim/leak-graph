@@ -19,8 +19,7 @@ taken per seed and then averaged, so shared initialisation noise cancels.
 Inflation is real on the homophilous citation graphs and small, at most 1.5
 accuracy points, on Cora with GraphSAGE. On the two heterophilous graphs it
 reverses: GCN *loses* 2.5 points to the transductive split. LabelProp and MLP
-read exactly zero everywhere, which is the instrument check instead of a result,
-since neither can distinguish the two splits. Exposure and leakage turn out to be
+read exactly zero everywhere, which only checks the instrument, since neither can distinguish the two splits. Exposure and leakage turn out to be
 different quantities: squirrel exposes 40% of its test nodes to a labelled
 training neighbour against Cora's 21% and still inflates less, because a vote
 over those labels scores 21% there against a 19% majority baseline, versus 80%
@@ -42,8 +41,7 @@ from 0.04% to 45% on PubMed depending which is used.
 Every phenomenon measured here is already documented in the literature. I did not find any of
 it. What this repository contributes is a single harness that measures all of it on the same
 splits with the same seeds under the same protocol, a headline metric that makes the cost
-comparable across datasets and models, and a test suite that checks the instrument instead of
-the result. Treat it as a measuring device and a replication, not as a novel claim.
+comparable across datasets and models, and a test suite for the instrument itself. Treat it as a measuring device and a replication, not as a novel claim.
 
 See [Prior work](#11-prior-work) for what was already known, with sources I verified before
 citing them.
@@ -76,9 +74,8 @@ Cora test nodes that have such a neighbour, and the GCN scores 86.1% on that sam
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#3-what-the-number-means).
 ## 4. Is the gap actually leakage?
-The random split is the negative control: it has no temporal or structural reason to leak, so a non-zero reading there would be a fault in the harness instead of a finding.
-Nothing in it resolves. The stronger check is a third arm that removes the same *number* of nodes from the unlabelled
-pool instead of the test set, splitting the gap into the cost of a smaller training graph and the part specific to the
+The random split is the negative control: it has no temporal or structural reason to leak, so a non-zero reading there would mean the harness is broken.
+Nothing in it resolves. The stronger check is a third arm that removes the same *number* of nodes from the unlabelled pool and leaves the test set alone, splitting the gap into the cost of a smaller training graph and the part specific to the
 test nodes. For GraphSAGE the smaller-graph term alone is 2.4 points on Cora and 2.8 on CiteSeer, both larger than the
 total inflation, so almost none of that gap is leakage. Cora GCN is the one cell where inflation survives the control
 roughly intact: 1.0 point total, 0.1 of it density, and a resolved test-specific 1.0.
@@ -144,11 +141,11 @@ straddling counts in the table and its GCN inflation is negative.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#duplicate-and-near-duplicate-nodes).
 ### Trying to reconcile the CiteSeer duplicate rate
-"Duplicate" is not one definition, so the disagreement might be a definitional difference instead of a conflict. `make duplicate-definitions` evaluates eighteen readings of it on all five datasets: exact feature match counted four different ways, with and without labels, with and without the all-zero rows, near-duplicates at five cosine cutoffs and three Jaccard cutoffs, and duplication defined on the graph instead of the features.
+"Duplicate" is not one definition, so the disagreement might just come from defining it differently. `make duplicate-definitions` evaluates eighteen readings of it on all five datasets: exact feature match counted four different ways, with and without labels, with and without the all-zero rows, near-duplicates at five cosine cutoffs and three Jaccard cutoffs, and duplication defined on the graph structure alone.
 None of the eighteen reproduces both quoted figures, and the threshold is not the reason. Fourteen of them put
 CiteSeer within a factor of 1.5 of Cora, where the quote needs a factor of 5, and solving directly for the cosine
-cutoff that puts CiteSeer at exactly 5% gives 0.8006, at which Cora reads 3.95% instead of 1%. My CiteSeer number
-is 1.05% and the disagreement stands unresolved instead of explained away.
+cutoff that puts CiteSeer at exactly 5% gives 0.8006, at which Cora reads 3.95%, not 1%. My CiteSeer number
+is 1.05% and the disagreement stays unresolved.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#trying-to-reconcile-the-citeseer-duplicate-rate).
 ### Feature, label leakage
@@ -167,8 +164,7 @@ Full output, including coverage and the accuracy restricted to covered nodes, is
 
 ## 7. The inductive split is the thing that has to be right
 Everything above is worthless if the inductive split is not actually inductive, and it is easy to get subtly wrong.
-So `induced_subgraph` physically removes the test nodes and relabels the survivors, instead of keeping their feature
-rows and merely dropping their edges. The property is asserted as an experiment: one test overwrites every test node's
+So `induced_subgraph` physically removes the test nodes and relabels the survivors. It does not just drop their edges and keep their feature rows. The property is asserted as an experiment: one test overwrites every test node's
 features with noise at 100x scale and requires the inductive training loss to come out bit-identical while the
 transductive one moves, and a second does the same by rewiring every test-node edge endpoint. Both sit in the 48-test
 suite, which builds a synthetic graph in process and downloads nothing.
@@ -200,9 +196,7 @@ pins it. Found by a test that was trying to check something else.
 
 All-zero feature rows are exact duplicates of one another and `torch.unique` counts them as
 such, but cosine similarity is undefined for a zero vector, so they can never appear among the
-near-duplicate pairs and were invisible to the straddling analysis. Rather than silently pick a
-convention, `DuplicateReport` now carries `zero_feature_nodes`, so the gap between the two
-counts is visible in the table instead of being an unexplained inconsistency.
+near-duplicate pairs and were invisible to the straddling analysis. `DuplicateReport` now carries `zero_feature_nodes`, so the gap between the two counts shows up in the table with its cause next to it.
 
 ### Finding I4: the neighbourhood-leakage comparison was invalid as first written
 The neighbour vote can only predict test nodes that have at least one training-set neighbour. On Cora's public split
@@ -225,8 +219,7 @@ Full detail in [notes/METHODS.md](notes/METHODS.md#finding-i4-the-neighbourhood-
   chameleon and squirrel use the ten geom-gcn splits, one per seed, so their variance includes
   both and is correspondingly larger. The two protocols are not directly comparable to each
   other. A second, uniform random-split scheme is now measured alongside them
-  ([above](#a-second-split-scheme)), and it is a *different* protocol rather than a robustness
-  check of the same one: 20 labels per class is far more label-scarce than the geom-gcn splits'
+  ([above](#a-second-split-scheme)), and it is a *different* protocol, not a robustness check of the same one: 20 labels per class is far more label-scarce than the geom-gcn splits'
   48%, so on chameleon and squirrel it trains a much weaker model. Where the two schemes
   disagree, label scarcity is confounded with the split.
 - **Still one hyperparameter setting and one scale.** No tuning per regime, nothing at OGB
@@ -248,14 +241,12 @@ Full detail in [notes/METHODS.md](notes/METHODS.md#finding-i4-the-neighbourhood-
 - **Why my CiteSeer duplicate rate disagrees with the quoted 5%.** I measure 1.05%, eighteen definitions were tried
   and none reproduces the quoted Cora/CiteSeer pair, and I could not retrieve the section of the primary source that
   would say what they counted.
-- **A reproduction of the 42%/62% feature-label figures.** My detector reports related quantities rather than the same
-  statistic, so the numbers here neither confirm nor contradict theirs.
+- **A reproduction of the 42%/62% feature-label figures.** My detector reports related quantities but not the same statistic, so the numbers here neither confirm nor contradict theirs.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#10-what-i-could-not-measure).
 ## 11. Prior work
 
-Each of these I fetched and checked before citing. Where I could not verify a claim, I say so
-above rather than repeat it.
+Each of these I fetched and checked before citing. Where I could not verify a claim, the text above says so.
 
 - **Zou et al., *Dimensional Reweighting Graph Convolutional Networks* (arXiv:1907.02237)**
   the primary source for the Cora/CiteSeer data-quality claims. Its abstract describes "several
@@ -278,7 +269,7 @@ above rather than repeat it.
   evaluation "suppresses the potential of GNNs to generalize", on the grounds that masking
   labels still leaves the graph attributes of the masked nodes visible during training, and
   proposes an inductive splitting scheme for single-graph datasets. This repository's inductive
-  arm is the same idea; the contribution here is pricing it rather than proposing it.
+  arm is the same idea; what this repository adds is a price on it.
 
 ## 12. Repository layout
 
