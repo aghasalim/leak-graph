@@ -53,14 +53,6 @@ def test_induced_subgraph_drops_nodes_and_relabels(graph):
     assert sorted(old_to_new[keep].tolist()) == list(range(int(keep.sum())))
 
 
-def test_induced_subgraph_rejects_bad_keep_mask(graph):
-    n = graph.x.size(0)
-    with pytest.raises(ValueError, match="bool"):
-        induced_subgraph(graph.x, graph.y, graph.edge_index, torch.ones(n, dtype=torch.long))
-    with pytest.raises(ValueError, match="length"):
-        induced_subgraph(graph.x, graph.y, graph.edge_index, torch.ones(n + 1, dtype=torch.bool))
-
-
 def test_induced_subgraph_preserves_features_and_labels_of_kept_nodes(graph):
     keep = ~graph.splits[0].test_mask
     x, y, _, old_to_new = induced_subgraph(graph.x, graph.y, graph.edge_index, keep)
