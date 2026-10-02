@@ -9,7 +9,6 @@ ever reports one, the audit is broken.
 
 from __future__ import annotations
 
-import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 from torch_geometric.nn import GCNConv, LabelPropagation, SAGEConv
