@@ -56,7 +56,8 @@ figures:
 	$(PY) experiments/make_figures.py
 
 clean:
-	rm -rf reports/*.csv reports/*.json .pytest_cache **/__pycache__
+	rm -rf reports/*.csv reports/*.json .pytest_cache
+	find . -name __pycache__ -type d -not -path "./.venv/*" -exec rm -rf {} +
 
 tables-check:  ## fail if the generated tables no longer match the CSVs
 	$(PY) experiments/make_tables.py --check
