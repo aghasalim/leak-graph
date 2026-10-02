@@ -5,7 +5,7 @@ PIP ?= .venv/bin/pip
 	control-random-splits duplicate-definitions tables tables-check figures clean
 
 venv:
-	/Users/salim/.local/bin/python3.12 -m venv .venv || python3.12 -m venv .venv
+	python3.12 -m venv .venv
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
 
