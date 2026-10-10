@@ -214,6 +214,13 @@ majority vote over its training-set neighbours. It can only predict test nodes t
 training neighbour, so the last column scores the GCN on exactly that subset, which is the only
 way the two numbers answer the same question.
 
+Cora, CiteSeer and PubMed are undirected, but chameleon and squirrel in the geom-gcn version
+are directed, and I load them as stored. So on those two "training neighbour" means a training
+node with an edge *into* the test node. That is the direction the GCN and GraphSAGE layers pass
+messages in, so the vote and the models are judged on the same neighbourhoods. Counting every
+link both ways would cover far more of the test set, but it would also be a different graph
+from the one every other number here was measured on.
+
 ## 4. Is the gap actually leakage?
 
 The random split is the negative control: it has no temporal or structural reason

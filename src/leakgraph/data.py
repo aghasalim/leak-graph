@@ -47,7 +47,9 @@ def load(name: str, root: str = "data") -> GraphData:
         from torch_geometric.datasets import WikipediaNetwork
 
         # geom_gcn_preprocess=True is the variant the heterophily literature reports on, and
-        # the one Platonov et al. (arXiv:2302.11640) found the duplicate nodes in.
+        # the one Platonov et al. (arXiv:2302.11640) found the duplicate nodes in. These graphs
+        # are directed (Wikipedia hyperlinks) and are kept that way, so message passing and
+        # the neighbour vote both run along the stored direction only.
         data = WikipediaNetwork(root=root, name=name, geom_gcn_preprocess=True)[0]
         splits = [
             Split(data.train_mask[:, i], data.val_mask[:, i], data.test_mask[:, i])
