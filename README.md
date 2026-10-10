@@ -212,7 +212,7 @@ their feature rows. I check this with an experiment. One test overwrites every
 test node's features with noise at 100x scale. It then requires the inductive
 training loss to come out bit-identical while the transductive one moves. A
 second test does the same by rewiring every test-node edge endpoint. Both are in
-the 48-test suite, which builds a synthetic graph in process and downloads
+the 36-test suite, which builds a synthetic graph in process and downloads
 nothing.
 
 Full detail in [notes/METHODS.md](notes/METHODS.md#7-the-inductive-split-is-the-thing-that-has-to-be-right).
@@ -346,7 +346,7 @@ I fetched and checked each of these before citing it. Where I couldn't verify a 
 ## 13. Reproducing
 
     make venv                    # .venv on python 3.12
-    make test                    # 48 tests, seconds, no downloads
+    make test                    # 36 tests, seconds, no downloads
     make detectors               # detectors only, no training
     make audit                   # the full thing: downloads ~200MB, hours on a laptop CPU
     make control                 # the density control, where the split leaves a pool
