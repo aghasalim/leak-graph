@@ -346,6 +346,12 @@ def neighbour_label_report(
 ) -> NeighbourLabelReport:
     """Predict a test label by majority vote over its *training* neighbours. No features, no
     learning, no parameters. Whatever this scores, a GNN has to beat it to have done anything.
+
+    Votes flow along `edge_index` from source to target, so on a directed graph a test node
+    hears only from its in-neighbours. That is the same direction the GCN and GraphSAGE layers
+    pass messages in, so the vote and the models see the same neighbourhoods. Chameleon and
+    squirrel (geom-gcn) are directed and are loaded as stored; symmetrise `edge_index` first
+    if you want every hyperlink to count both ways.
     """
     num_classes = int(y.max()) + 1
     src, dst = edge_index[0], edge_index[1]

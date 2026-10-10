@@ -135,6 +135,19 @@ def test_neighbour_vote_reports_zero_coverage_on_an_edgeless_graph(graph):
     assert report.vote_accuracy_overall == pytest.approx(report.majority_class_accuracy)
 
 
+def test_neighbour_vote_follows_edge_direction_on_a_directed_graph():
+    """Chameleon and squirrel are directed. A test node is covered by a training node that
+    links into it, the direction the GNN layers pass messages in, and not by one it links to."""
+    y = torch.tensor([0, 1, 1, 1])
+    train = torch.tensor([True, False, False, True])
+    test = torch.tensor([False, True, True, False])
+    # 0 -> 1: train into test. 2 -> 3: test out to train, which must not count.
+    edges = torch.tensor([[0, 2], [1, 3]])
+    report = neighbour_label_report(edges, y, train, test)
+    assert report.frac_test_with_train_neighbour == 0.5
+    assert report.vote_accuracy_on_covered == 0.0  # node 1 gets node 0's label, 0, not its own
+
+
 # --------------------------------------------------------------------------------------
 # harness controls: two models that cannot have a transductive/inductive gap
 # --------------------------------------------------------------------------------------
