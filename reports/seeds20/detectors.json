@@ -1,0 +1,232 @@
+[
+  {
+    "dataset": "Cora",
+    "split_index": 0,
+    "num_nodes": 2708,
+    "num_edges": 10556,
+    "num_classes": 7,
+    "duplicates": {
+      "num_nodes": 2708,
+      "exact_duplicate_nodes": 27,
+      "exact_duplicate_pairs": 22,
+      "zero_feature_nodes": 0,
+      "calibrated_threshold": 0.47434166073799133,
+      "near_duplicate_pairs": 440,
+      "near_duplicate_pairs_at_0_95": 27,
+      "near_duplicate_pairs_at_0_99": 22,
+      "straddling_pairs": 10,
+      "test_nodes_with_train_twin": 8,
+      "test_nodes": 1000,
+      "frac_test_with_train_twin": 0.008,
+      "same_label_frac_among_straddling": 1.0
+    },
+    "cosine_calibration": {
+      "threshold": 0.47434166073799133,
+      "null_pairs_examined": 3665278,
+      "null_subsample_nodes": 2708,
+      "real_pairs_examined": 3665278,
+      "note": "threshold = max cosine over column-permuted null; permissive, counts are an upper bound"
+    },
+    "feature_label": {
+      "logreg_test_accuracy": 0.576,
+      "majority_class_accuracy": 0.12999999523162842,
+      "num_features": 1433,
+      "giveaway_features": 3,
+      "min_support": 5,
+      "purity_cutoff": 0.95,
+      "null_giveaway_features": 0.0,
+      "frac_test_covered_by_giveaway": 0.07199999690055847,
+      "giveaway_vote_accuracy_on_covered": 0.625
+    },
+    "neighbour_label": {
+      "frac_test_with_train_neighbour": 0.211,
+      "vote_accuracy_on_covered": 0.7962085604667664,
+      "vote_accuracy_overall": 0.257999986410141,
+      "majority_class_accuracy": 0.12999999523162842
+    }
+  },
+  {
+    "dataset": "CiteSeer",
+    "split_index": 0,
+    "num_nodes": 3327,
+    "num_edges": 9104,
+    "num_classes": 6,
+    "duplicates": {
+      "num_nodes": 3327,
+      "exact_duplicate_nodes": 35,
+      "exact_duplicate_pairs": 115,
+      "zero_feature_nodes": 15,
+      "calibrated_threshold": 0.2920125424861908,
+      "near_duplicate_pairs": 2790,
+      "near_duplicate_pairs_at_0_95": 21,
+      "near_duplicate_pairs_at_0_99": 10,
+      "straddling_pairs": 51,
+      "test_nodes_with_train_twin": 45,
+      "test_nodes": 1000,
+      "frac_test_with_train_twin": 0.045,
+      "same_label_frac_among_straddling": 0.7450980544090271
+    },
+    "cosine_calibration": {
+      "threshold": 0.2920125424861908,
+      "null_pairs_examined": 5532801,
+      "null_subsample_nodes": 3327,
+      "real_pairs_examined": 5532801,
+      "note": "threshold = max cosine over column-permuted null; permissive, counts are an upper bound"
+    },
+    "feature_label": {
+      "logreg_test_accuracy": 0.593,
+      "majority_class_accuracy": 0.07699999958276749,
+      "num_features": 3703,
+      "giveaway_features": 0,
+      "min_support": 5,
+      "purity_cutoff": 0.95,
+      "null_giveaway_features": 0.0,
+      "frac_test_covered_by_giveaway": 0.0,
+      "giveaway_vote_accuracy_on_covered": NaN
+    },
+    "neighbour_label": {
+      "frac_test_with_train_neighbour": 0.096,
+      "vote_accuracy_on_covered": 0.7604166865348816,
+      "vote_accuracy_overall": 0.13699999451637268,
+      "majority_class_accuracy": 0.07699999958276749
+    }
+  },
+  {
+    "dataset": "PubMed",
+    "split_index": 0,
+    "num_nodes": 19717,
+    "num_edges": 88648,
+    "num_classes": 3,
+    "duplicates": {
+      "num_nodes": 19717,
+      "exact_duplicate_nodes": 7,
+      "exact_duplicate_pairs": 5,
+      "zero_feature_nodes": 0,
+      "calibrated_threshold": 0.9039022922515869,
+      "near_duplicate_pairs": 188,
+      "near_duplicate_pairs_at_0_95": 12,
+      "near_duplicate_pairs_at_0_99": 5,
+      "straddling_pairs": 1,
+      "test_nodes_with_train_twin": 1,
+      "test_nodes": 1000,
+      "frac_test_with_train_twin": 0.001,
+      "same_label_frac_among_straddling": 1.0
+    },
+    "cosine_calibration": {
+      "threshold": 0.9039022922515869,
+      "null_pairs_examined": 7998000,
+      "null_subsample_nodes": 4000,
+      "real_pairs_examined": 194370186,
+      "note": "threshold = max cosine over column-permuted null; permissive, counts are an upper bound"
+    },
+    "feature_label": {
+      "logreg_test_accuracy": 0.729,
+      "majority_class_accuracy": 0.18000000715255737,
+      "num_features": 500,
+      "giveaway_features": 9,
+      "min_support": 5,
+      "purity_cutoff": 0.95,
+      "null_giveaway_features": 0.4,
+      "frac_test_covered_by_giveaway": 0.5009999871253967,
+      "giveaway_vote_accuracy_on_covered": 0.6766467094421387
+    },
+    "neighbour_label": {
+      "frac_test_with_train_neighbour": 0.019,
+      "vote_accuracy_on_covered": 0.7368420958518982,
+      "vote_accuracy_overall": 0.1889999955892563,
+      "majority_class_accuracy": 0.18000000715255737
+    }
+  },
+  {
+    "dataset": "chameleon",
+    "split_index": 0,
+    "num_nodes": 2277,
+    "num_edges": 36101,
+    "num_classes": 5,
+    "duplicates": {
+      "num_nodes": 2277,
+      "exact_duplicate_nodes": 375,
+      "exact_duplicate_pairs": 27264,
+      "zero_feature_nodes": 233,
+      "calibrated_threshold": 0.37796449661254883,
+      "near_duplicate_pairs": 3395,
+      "near_duplicate_pairs_at_0_95": 236,
+      "near_duplicate_pairs_at_0_99": 236,
+      "straddling_pairs": 683,
+      "test_nodes_with_train_twin": 128,
+      "test_nodes": 456,
+      "frac_test_with_train_twin": 0.2807017543859649,
+      "same_label_frac_among_straddling": 0.4538799524307251
+    },
+    "cosine_calibration": {
+      "threshold": 0.37796449661254883,
+      "null_pairs_examined": 2591226,
+      "null_subsample_nodes": 2277,
+      "real_pairs_examined": 2591226,
+      "note": "threshold = max cosine over column-permuted null; permissive, counts are an upper bound"
+    },
+    "feature_label": {
+      "logreg_test_accuracy": 0.4473684210526316,
+      "majority_class_accuracy": 0.22368420660495758,
+      "num_features": 2325,
+      "giveaway_features": 61,
+      "min_support": 5,
+      "purity_cutoff": 0.95,
+      "null_giveaway_features": 1.0,
+      "frac_test_covered_by_giveaway": 0.09649122506380081,
+      "giveaway_vote_accuracy_on_covered": 0.7045454382896423
+    },
+    "neighbour_label": {
+      "frac_test_with_train_neighbour": 0.3925438596491228,
+      "vote_accuracy_on_covered": 0.3296089470386505,
+      "vote_accuracy_overall": 0.2850877046585083,
+      "majority_class_accuracy": 0.22368420660495758
+    }
+  },
+  {
+    "dataset": "squirrel",
+    "split_index": 0,
+    "num_nodes": 5201,
+    "num_edges": 217073,
+    "num_classes": 5,
+    "duplicates": {
+      "num_nodes": 5201,
+      "exact_duplicate_nodes": 265,
+      "exact_duplicate_pairs": 13608,
+      "zero_feature_nodes": 165,
+      "calibrated_threshold": 0.3535533845424652,
+      "near_duplicate_pairs": 7348,
+      "near_duplicate_pairs_at_0_95": 78,
+      "near_duplicate_pairs_at_0_99": 78,
+      "straddling_pairs": 1580,
+      "test_nodes_with_train_twin": 377,
+      "test_nodes": 1041,
+      "frac_test_with_train_twin": 0.3621517771373679,
+      "same_label_frac_among_straddling": 0.2531645596027374
+    },
+    "cosine_calibration": {
+      "threshold": 0.3535533845424652,
+      "null_pairs_examined": 7998000,
+      "null_subsample_nodes": 4000,
+      "real_pairs_examined": 13522600,
+      "note": "threshold = max cosine over column-permuted null; permissive, counts are an upper bound"
+    },
+    "feature_label": {
+      "logreg_test_accuracy": 0.35350624399615754,
+      "majority_class_accuracy": 0.19308356940746307,
+      "num_features": 2089,
+      "giveaway_features": 4,
+      "min_support": 5,
+      "purity_cutoff": 0.95,
+      "null_giveaway_features": 0.2,
+      "frac_test_covered_by_giveaway": 0.013448607176542282,
+      "giveaway_vote_accuracy_on_covered": 0.6428571343421936
+    },
+    "neighbour_label": {
+      "frac_test_with_train_neighbour": 0.4034582132564842,
+      "vote_accuracy_on_covered": 0.20714285969734192,
+      "vote_accuracy_overall": 0.2228626310825348,
+      "majority_class_accuracy": 0.19308356940746307
+    }
+  }
+]
