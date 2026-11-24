@@ -1,5 +1,3 @@
-<p align="center"><img src="assets/banner.jpg" alt="Line drawing of a graph split in two by a dashed line, with a few edges crossing the divide" width="100%"></p>
-
 # LeakGraph
 
 How much accuracy does transductive evaluation add on standard GNN node-classification benchmarks, and where does it come from?
