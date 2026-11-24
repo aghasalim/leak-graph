@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/banner.jpg" alt="Line drawing of a graph split in two by a dashed line, with a few edges crossing the divide" width="100%"></p>
+
 # LeakGraph
 
 How much accuracy does transductive evaluation add on standard GNN node-classification benchmarks, and where does it come from?
@@ -7,6 +9,27 @@ How much accuracy does transductive evaluation add on standard GNN node-classifi
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23003656.svg)](https://doi.org/10.5281/zenodo.23003656)
 
 ---
+
+<details>
+<summary>Contents</summary>
+
+- [Abstract](#abstract)
+- [1. Scope: this is tooling, not a discovery](#1-scope-this-is-tooling-not-a-discovery)
+- [2. The headline number](#2-the-headline-number)
+- [3. What the number means](#3-what-the-number-means)
+- [4. Is the gap actually leakage?](#4-is-the-gap-actually-leakage)
+- [5. Decomposing by duplicates](#5-decomposing-by-duplicates)
+- [6. The detectors](#6-the-detectors)
+- [7. The inductive split is the thing that has to be right](#7-the-inductive-split-is-the-thing-that-has-to-be-right)
+- [8. Instrument bugs](#8-instrument-bugs)
+- [9. Limitations](#9-limitations)
+- [10. What I could not measure](#10-what-i-could-not-measure)
+- [11. Prior work](#11-prior-work)
+- [12. Repository layout](#12-repository-layout)
+- [13. Reproducing](#13-reproducing)
+- [14. Licence](#14-licence)
+
+</details>
 
 ## Abstract
 
